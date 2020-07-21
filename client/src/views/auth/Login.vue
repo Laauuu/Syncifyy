@@ -1,6 +1,6 @@
 <template>
   <div class="Login">
-    <h1 style="text-align: center; margin-top: 2em;">Register</h1>
+    <h1 style="text-align: center; margin-top: 2em;">Login</h1>
     <form
       style="text-align: center; margin-top: 1em;"
       @submit.prevent="login()"
@@ -68,9 +68,20 @@ export default {
       const validationError = validate(body, constraints);
       if (validationError) {
         this.errorMessage = 'Username / Password is invalid.';
+      } else {
+        this.errorMessage = '';
+        const API_URL = process.env.VUE_APP_LOGIN;
+        axios
+          .post(API_URL, body)
+          .then((tokenData) => {
+            this.errorMessage = '';
+            localStorage.token = tokenData.data.token;
+            this.$router.push('/lobbies');
+          })
+          .catch((error) => {
+            this.errorMessage = error.response.data;
+          });
       }
-      this.errorMessage = '';
-      // api call
     },
   },
 };

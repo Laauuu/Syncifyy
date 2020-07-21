@@ -27,7 +27,7 @@ const constraints = {
   },
 };
 
-router.post('/register', (req, res, next) => {
+router.post('/register', (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   const validationError = validate({ username, password }, constraints);
@@ -39,12 +39,14 @@ router.post('/register', (req, res, next) => {
     }
     return;
   }
-  Users.findOne({ username }).then((err, user) => {
+  Users.findOne({ username }).then((user, err) => {
     if (!user) {
       bcrypt.hash(password, saltRounds, (err, hash) => {
-        Users.create({ username, password: hash }).then((err) => {
-          if (err) {
+        Users.create({ username, password: hash }).then((created, error) => {
+          if (error) {
             helper.httpError500(res, 'Server is unstable ATM');
+          } else {
+            res.json(created);
           }
         });
       });
@@ -56,7 +58,7 @@ router.post('/register', (req, res, next) => {
   });
 });
 
-router.get('/login', (req, res) => {
+router.post('/login', (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
   const validationError = validate({ username, password }, constraints);
@@ -76,7 +78,10 @@ router.get('/login', (req, res) => {
               if (err) {
                 helper.httpError500(res, 'Server is unstable ATM'); // change
               } else {
-                res.json(token);
+                res.status(200);
+                res.json({
+                  token,
+                });
               }
             }
           );
@@ -95,3 +100,7 @@ router.get('/login', (req, res) => {
 });
 
 module.exports = router;
+
+/*
+
+    */

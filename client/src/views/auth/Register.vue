@@ -83,7 +83,15 @@ export default {
           }
         }
         this.errorMessage = '';
-        // api call
+        axios
+          .post(process.env.VUE_APP_REGISTER, body)
+          .then((response) => {
+            this.errorMessage = '';
+            this.$router.push('/login');
+          })
+          .catch((error) => {
+            this.errorMessage = error.response.data;
+          });
       } else {
         this.errorMessage = 'Passwords do not match!';
       }
