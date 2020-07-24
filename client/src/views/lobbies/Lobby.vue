@@ -1,29 +1,15 @@
 <template>
   <div>
     <h1 style="margin-top: 20px;">Lobbies</h1>
-    <table style="margin-top: 10px;">
-      <thead>
-        <tr>
-          <th>Lobby</th>
-          <th>Owner</th>
-          <th>Private</th>
-          <th>Join</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="lobby in lobbies" :key="lobby._id">
-          <td>{{ lobby.title }}</td>
-          <td>{{ lobby.owner }}</td>
-          <td>{{ lobby.private }}</td>
-          <td><a href="#">join</a></td>
-        </tr>
-      </tbody>
-    </table>
+    <Table :lobbies="lobbies" />
     <button @click="create = !create" style="padding: 3px; margin-top: 10px;">
       Create Lobby
     </button>
     <button @click="logout()" style="padding:3px; margin-left: 10px;">
       Logout
+    </button>
+    <button @click="refresh()" style="padding:3px; margin-left: 10px;">
+      Refresh Table
     </button>
     <div v-if="create">
       <form @submit.prevent="createLobby()">
@@ -52,16 +38,21 @@
         />
       </form>
     </div>
-    <h4 style="margin-top: 15px;">Currently Online - {{ online }}</h4>
+    <h4 style="margin-top: 15px;">Currently Online - {{ online - 1 }}</h4>
     <p style="margin-top: 10px; color: red;">{{ errorMessage }}</p>
   </div>
 </template>
 
 <script>
+import io from 'socket.io-client';
+import Table from './Table';
 const axios = require('axios');
 
 export default {
   name: 'Lobby',
+  components: {
+    Table,
+  },
   data() {
     return {
       lobbies: [],
@@ -71,11 +62,28 @@ export default {
       isPrivate: false,
       lobbyPassword: '',
       errorMessage: '',
+      socket: io('localhost:5000'),
     };
+  },
+  created() {
+    const API_URL = process.env.VUE_APP_ALL_LOBBIES;
+    axios
+      .get(API_URL, {
+        headers: {
+          Authorization: localStorage.token,
+        },
+      })
+      .then((response) => {
+        this.lobbies = response.data;
+        this.socket.emit('new-auth-client');
+      })
+      .catch((error) => {
+        this.errorMessage = error.response.data;
+      });
   },
   methods: {
     createLobby() {
-      const API_URL = 'http://127.0.0.1:5000/lobbies/create-lobby';
+      const API_URL = process.env.VUE_APP_NEW_LOBBY;
       const body = {
         lobbyName: this.lobbyName,
         isPrivate: this.isPrivate,
@@ -95,24 +103,22 @@ export default {
         });
     },
     logout() {
+      this.socket.emit('logout', { id: this.socket.id });
       localStorage.token = '';
       this.$router.push('/login');
     },
   },
   mounted() {
-    const API_URL = 'http://127.0.0.1:5000/lobbies/open-lobbies';
-    axios
-      .get(API_URL, {
-        headers: {
-          Authorization: localStorage.token,
-        },
-      })
-      .then((response) => {
-        this.lobbies = response.data;
-      })
-      .catch((error) => {
-        this.errorMessage = error.response.data;
-      });
+    this.socket.on('new-connection', () => {
+      this.online += 1;
+      this.socket.emit('current-users', { totalUsers: this.online });
+    });
+    this.socket.on('currently-online', (data) => {
+      this.online = data.connected;
+    });
+    this.socket.on('lost-connection', () => {
+      this.online -= 1;
+    });
   },
 };
 </script>
@@ -131,26 +137,4 @@ th {
 tr {
   border: 1px solid black;
 }
-
-/*
-<tr>
-          <td>Lobby #1</td>
-          <td>Username1</td>
-          <td>Yes</td>
-          <td>Join</td>
-          <td>Delete</td>
-        </tr>
-        <tr>
-          <td>Lobby #2</td>
-          <td>Username2</td>
-          <td>No</td>
-          <td>Join</td>
-          <td>Delete</td>
-        </tr>
-        <tr>
-          <td>Lobby #3</td>
-          <td>Username3</td>
-          <td>No</td>
-        </tr>
-        */
 </style>
