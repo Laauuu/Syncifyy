@@ -6,8 +6,6 @@ This project is a clone of Rabbit, an ios app that allowed users to watch things
 ## Motivation -
 Because of coronavirus, it has been harder to keep in touch with friends, and I wanted to create something interactive that I could use with my friends and have fun with. Also, when a youtube livestream is going on or there is a new video out I want to watch with my friends, instead of having to time up exactly when we're going to press play, who's leaving and pause, etc. this application takes care of all of that. I definetely want to improve on this in the future to add more features to make it a pleasureable experience. 
 
-------
-
 ## Screenshots - 
 ![Lobbies](https://i.imgur.com/j38OOY0.png)
 ------
