@@ -1,13 +1,24 @@
+// Using Node & Express
 const express = require('express');
 const router = express.Router();
+
+/*
+=====
+1. validate.js package is used to make sure user input is correct before querying the database
+2. bcrypt package is used to hash password before inserting in the database
+=====
+*/
 
 const validate = require('validate.js');
 const bcrypt = require('bcrypt');
 
+// helper functions for various http status code errors (400's..500s)
 const helper = require('../../../helpers/errorFunctions');
 
+// Users schema for users collection in database
 const Users = require('../../../database/Models/UsersSchema');
 
+// validate.js constraints (change password)
 const constraints = {
   password: {
     presence: true,
@@ -18,40 +29,48 @@ const constraints = {
   },
 };
 
+// GET /admin/list-users
 router.get('/list-users', async (req, res) => {
-  const allUsers = await Users.find();
-  res.status(200);
-  res.json(allUsers);
+  const allUsers = await Users.find(); // query database for all users
+  res.status(200); // return status code 200 OK
+  res.json(allUsers); // send all users to the client (admin)
 });
 
+// PUT / admin/change-password
 router.put('/change-password', (req, res) => {
-  const userId = req.body.userId;
-  const newPassword = req.body.newPassword;
-  const validationError = validate({ password: newPassword }, constraints);
+  const userId = req.body.userId; // ID of user having password changed
+  const newPassword = req.body.newPassword; // the new password
+  const validationError = validate({ password: newPassword }, constraints); // put password through validation
 
   if (validationError) {
+    // if it failed validation...
     helper.httpError400(res, validationError.password[0]);
   } else {
+    // if it passed validation
     const saltRounds = 12;
     bcrypt.hash(newPassword, saltRounds, async (err, hash) => {
+      // hash the new password
       if (err) {
-        helper.httpError400(res, 'Issue hashing password!');
+        // if there was an error for some reason
+        helper.httpError400(res, 'Issue hashing password!'); // send according error message back to client
       } else {
-        await Users.updateOne({ _id: userId }, { password: hash });
-        res.status(200);
-        res.json('Successfully changed password!');
+        // everything was good
+        await Users.updateOne({ _id: userId }, { password: hash }); // query database and insert new password in the document
+        res.status(200); // return status code 200 OK
+        res.json('Successfully changed password!'); // send success message to client
       }
     });
   }
 });
 
+// DELETE /admin/remove-user
 router.delete('/remove-user', async (req, res) => {
-  const userId = req.body.userId;
+  const userId = req.body.userId; // ID of user being deleted
 
-  const user = await Users.findOne({ _id: userId });
-  await Users.deleteOne({ _id: userId });
-  res.status(200);
-  res.json(`Successfully deleted ${user.username}`);
+  const user = await Users.findOne({ _id: userId }); // query database for username
+  await Users.deleteOne({ _id: userId }); // delete user in the database
+  res.status(200); // return status code 200 OK
+  res.json(`Successfully deleted ${user.username}`); // send success message to client
 });
 
 module.exports = router;
