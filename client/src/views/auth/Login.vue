@@ -23,7 +23,10 @@
       />
     </form>
     <div style="text-align: center; margin-top: 15px;">
-      <a href="/">Register?</a>
+      <a href="/">Register?</a><br />
+      <div style="margin-top: 5px;">
+        <a href="/admin-login">Admin?</a>
+      </div>
     </div>
   </div>
 </template>

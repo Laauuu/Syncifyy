@@ -13,6 +13,10 @@ const LobbiesSchema = new Schema({
     type: String,
     default: null,
   },
+  youtubeId: {
+    type: String,
+    default: 'MtN1YnoL46Q',
+  },
 });
 
 const Lobbies = mongoose.model('Lobbies', LobbiesSchema);

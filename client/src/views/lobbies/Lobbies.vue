@@ -38,13 +38,11 @@
         />
       </form>
     </div>
-    <h4 style="margin-top: 15px;">Currently Online - {{ online - 1 }}</h4>
     <p style="margin-top: 10px; color: red;">{{ errorMessage }}</p>
   </div>
 </template>
 
 <script>
-import io from 'socket.io-client';
 import Table from './Table';
 const axios = require('axios');
 
@@ -57,16 +55,27 @@ export default {
     return {
       lobbies: [],
       create: false,
-      online: 0,
       lobbyName: '',
       isPrivate: false,
       lobbyPassword: '',
       errorMessage: '',
-      socket: io('localhost:5000'),
     };
   },
   created() {
     const API_URL = process.env.VUE_APP_ALL_LOBBIES;
+    const S_API_URL = 'http://127.0.0.1:5000/lobby/user-lobby';
+
+    axios
+      .get(S_API_URL, { headers: { authorization: localStorage.token } })
+      .then((lobby) => {
+        if (lobby.data != null) {
+          this.$router.push(`/lobbies/${lobby.data}`);
+        }
+      })
+      .catch((error) => {
+        this.errorMessage = error.response.data;
+      });
+
     axios
       .get(API_URL, {
         headers: {
@@ -75,7 +84,6 @@ export default {
       })
       .then((response) => {
         this.lobbies = response.data;
-        this.socket.emit('new-auth-client');
       })
       .catch((error) => {
         this.errorMessage = error.response.data;
@@ -103,22 +111,25 @@ export default {
         });
     },
     logout() {
-      this.socket.emit('logout', { id: this.socket.id });
       localStorage.token = '';
       this.$router.push('/login');
     },
-  },
-  mounted() {
-    this.socket.on('new-connection', () => {
-      this.online += 1;
-      this.socket.emit('current-users', { totalUsers: this.online });
-    });
-    this.socket.on('currently-online', (data) => {
-      this.online = data.connected;
-    });
-    this.socket.on('lost-connection', () => {
-      this.online -= 1;
-    });
+    refresh() {
+      const API_URL = process.env.VUE_APP_ALL_LOBBIES;
+
+      axios
+        .get(API_URL, {
+          headers: {
+            Authorization: localStorage.token,
+          },
+        })
+        .then((response) => {
+          this.lobbies = response.data;
+        })
+        .catch((error) => {
+          this.errorMessage = error.response.data;
+        });
+    },
   },
 };
 </script>

@@ -21,6 +21,16 @@ function isAuthorized(req, res, next) {
   }
 }
 
+function isAdmin(req, res, next) {
+  if (req.headers.authorization == process.env.ADMIN_TOKEN) {
+    next();
+  } else {
+    helper.httpError400(res, 'Please proceed to login!');
+    res.end();
+  }
+}
+
 module.exports = {
   isAuthorized,
+  isAdmin,
 };

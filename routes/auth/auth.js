@@ -1,16 +1,15 @@
 const express = require('express');
 const router = express.Router();
+
+const validate = require('validate.js');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
 const helper = require('../../helpers/errorFunctions');
 
 const Users = require('../../database/Models/UsersSchema');
 
-const validate = require('validate.js'); // validation package
-const jwt = require('jsonwebtoken'); // JWT
-const bcrypt = require('bcrypt'); // hashing package
-const saltRounds = 12; // salt level
-
 const constraints = {
-  // simple validation
   username: {
     presence: true,
     length: {
@@ -27,7 +26,7 @@ const constraints = {
   },
 };
 
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   const validationError = validate({ username, password }, constraints);
@@ -37,36 +36,29 @@ router.post('/register', (req, res) => {
     } else {
       helper.httpError400(res, validationError.password[0]);
     }
-    return;
-  }
-  Users.findOne({ username }).then((user, err) => {
+  } else {
+    const user = await Users.findOne({ username });
     if (!user) {
-      bcrypt.hash(password, saltRounds, (err, hash) => {
-        Users.create({ username, password: hash }).then((created, error) => {
-          if (error) {
-            helper.httpError500(res, 'Server is unstable ATM');
-          } else {
-            res.json(created);
-          }
-        });
+      const saltRounds = 12;
+      bcrypt.hash(password, saltRounds, async (err, hash) => {
+        await Users.create({ username, password: hash });
+        res.status(200);
+        res.end();
       });
-    } else if (user) {
+    } else {
       helper.httpError409(res, 'Username already created!');
-    } else if (err) {
-      helper.httpError500(res, 'Server is unstable ATM');
     }
-  });
+  }
 });
 
-router.post('/login', (req, res, next) => {
+router.post('/login', async (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
   const validationError = validate({ username, password }, constraints);
   if (validationError) {
     helper.httpError400(res, 'Username / Password is invalid.');
-    return;
-  }
-  Users.findOne({ username }).then((user, err) => {
+  } else {
+    const user = await Users.findOne({ username });
     if (user) {
       bcrypt.compare(password, user.password, (err, result) => {
         if (result) {
@@ -76,7 +68,7 @@ router.post('/login', (req, res, next) => {
             { algorithm: process.env.TOKEN_ALGO },
             (err, token) => {
               if (err) {
-                helper.httpError500(res, 'Server is unstable ATM'); // change
+                helper.httpError500(res, 'Server is unstable ATM');
               } else {
                 res.status(200);
                 res.json({
@@ -85,22 +77,14 @@ router.post('/login', (req, res, next) => {
               }
             }
           );
-        } else if (!result) {
+        } else {
           helper.httpError400(res, 'Username / Password is invalid.');
-        } else if (err) {
-          helper.httpError500(res, 'Server is unstable ATM');
         }
       });
-    } else if (!user) {
+    } else {
       helper.httpError400(res, 'Username / Password is invalid.');
-    } else if (err) {
-      helper.httpError500(res, 'Server is unstable ATM');
     }
-  });
+  }
 });
 
 module.exports = router;
-
-/*
-
-    */

@@ -85,7 +85,7 @@ export default {
         this.errorMessage = '';
         axios
           .post(process.env.VUE_APP_REGISTER, body)
-          .then((response) => {
+          .then(() => {
             this.errorMessage = '';
             this.$router.push('/login');
           })

@@ -13,7 +13,8 @@
     "socket.io-client": "^2.3.0",
     "validate.js": "^0.13.1",
     "vue": "^2.6.11",
-    "vue-router": "^3.2.0"
+    "vue-router": "^3.2.0",
+    "vue-youtube": "^1.4.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.4.0",
