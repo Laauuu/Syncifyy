@@ -65,7 +65,7 @@ export default {
       videoLength: 0,
       videoPercentage: 0,
       errorMessage: '',
-      socket: io('localhost:5000'), // listening on
+      socket: io('http://ec2-54-158-184-106.compute-1.amazonaws.com:5000'), // listening on
     };
   },
   computed: {
