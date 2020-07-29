@@ -149,8 +149,8 @@ export default {
     },
     async adminRefresh() {
       // refresh data to see any new updates
-      await this.fetchUsersAdmin(); // re-fetching data
-      this.users = this.allLobbiesAdmin; // display the new fetched data
+      await this.fetchUsersAdmin();
+      this.users = this.allUsersAdmin;
     },
     async adminChangePassword() {
       const validationError = validate(

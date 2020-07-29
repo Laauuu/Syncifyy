@@ -16,5 +16,7 @@
     "dotenv": "^8.2.0",
     "nodemon": "^2.0.4",
     "volleyball": "^1.5.1"
-  }
+  },
+  "repository": "https://github.com/BigBellyBigDreams/Youtube-Sync.git",
+  "author": "Yonden Sawyers <YondenJ.Sawyersofficial@gmail.com>"
 }
