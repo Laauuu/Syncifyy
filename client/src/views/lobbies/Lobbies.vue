@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 style="margin-top: 20px;">Lobbies</h1>
-    <Table :lobbies="lobbies" />
+    <Table :lobbies="allLobbies" />
     <button @click="create = !create" style="padding: 3px; margin-top: 10px;">
       Create Lobby
     </button>
@@ -44,6 +44,8 @@
 
 <script>
 import Table from './Table';
+import { mapGetters, mapActions } from 'vuex';
+
 const axios = require('axios');
 
 export default {
@@ -53,7 +55,6 @@ export default {
   },
   data() {
     return {
-      lobbies: [],
       create: false,
       lobbyName: '',
       isPrivate: false,
@@ -61,12 +62,14 @@ export default {
       errorMessage: '',
     };
   },
+  computed: {
+    ...mapGetters(['allLobbies']), // getters from vuex (all lobbies)
+  },
   created() {
-    const API_URL = process.env.VUE_APP_ALL_LOBBIES;
-    const S_API_URL = 'http://127.0.0.1:5000/lobby/user-lobby';
+    const API_URL = process.env.VUE_APP_USER_LOBBY;
 
-    axios
-      .get(S_API_URL, { headers: { authorization: localStorage.token } })
+    axios // this AJAX request just makes sure that the user isn't already in a lobby and if so redirect user to lobby
+      .get(API_URL, { headers: { authorization: localStorage.token } })
       .then((lobby) => {
         if (lobby.data != null) {
           this.$router.push(`/lobbies/${lobby.data}`);
@@ -76,59 +79,38 @@ export default {
         this.errorMessage = error.response.data;
       });
 
-    axios
-      .get(API_URL, {
-        headers: {
-          Authorization: localStorage.token,
-        },
-      })
-      .then((response) => {
-        this.lobbies = response.data;
-      })
-      .catch((error) => {
-        this.errorMessage = error.response.data;
-      });
+    this.fetchLobbies(); // fetch lobby data
   },
   methods: {
-    createLobby() {
+    ...mapActions(['fetchLobbies']), // actions from vuex (send request to get lobby data)
+
+    async createLobby() {
+      // take user input and insert new lobby in database
       const API_URL = process.env.VUE_APP_NEW_LOBBY;
       const body = {
         lobbyName: this.lobbyName,
         isPrivate: this.isPrivate,
         lobbyPassword: this.lobbyPassword,
       };
-      axios
-        .post(API_URL, body, {
-          headers: {
-            Authorization: localStorage.token,
-          },
-        })
-        .then(() => {
-          window.location.reload();
-        })
-        .catch((error) => {
-          this.errorMessage = error.response.data;
+      try {
+        // send request to server
+        await axios.post(API_URL, body, {
+          headers: { authorization: localStorage.token },
         });
+        window.location.reload(); // after it updated in the database refresh window
+      } catch (error) {
+        // if for some reason there was a bug
+        this.errorMessage = error.response.data; // display error
+      }
     },
     logout() {
+      // go back to login page
       localStorage.token = '';
       this.$router.push('/login');
     },
     refresh() {
-      const API_URL = process.env.VUE_APP_ALL_LOBBIES;
-
-      axios
-        .get(API_URL, {
-          headers: {
-            Authorization: localStorage.token,
-          },
-        })
-        .then((response) => {
-          this.lobbies = response.data;
-        })
-        .catch((error) => {
-          this.errorMessage = error.response.data;
-        });
+      // refresh to get new updates
+      this.fetchLobbies(); // re-fetch data
     },
   },
 };

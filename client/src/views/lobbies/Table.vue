@@ -21,14 +21,13 @@
               Join
             </button>
           </td>
-          <!--<td><a :href="'/lobbies/' + lobby._id">join</a></td>-->
         </tr>
       </tbody>
     </table>
     <form
       v-if="validatePassword"
-      style="margin-top: 10px;"
       @submit.prevent="redirectIfCorrect()"
+      style="margin-top: 10px;"
     >
       <input
         type="password"
@@ -64,6 +63,7 @@ export default {
   },
   methods: {
     checkIfPrivate(privateLobby, password, lobbyId) {
+      // checks if the lobby is private
       if (privateLobby === 'true') {
         this.validatePassword = true;
         this.password = password;
@@ -75,14 +75,16 @@ export default {
       }
     },
     redirectIfCorrect() {
+      // if the password inserted was correct..
       if (this.passwordInput == this.password) {
         this.errorMessage = '';
-        this.$router.push(`/lobbies/${this.lobbyId}`);
+        this.$router.push(`/lobbies/${this.lobbyId}`); // send to lobby
       } else {
-        this.errorMessage = 'Invalid Password!';
+        this.errorMessage = 'Invalid Password!'; // invalid password
       }
     },
     cancel() {
+      // clear out of form, reset data
       this.password = '';
       this.lobbyId = '';
       this.passwordInput = '';
@@ -92,5 +94,3 @@ export default {
   },
 };
 </script>
-
-<style></style>

@@ -95,6 +95,7 @@
 
 <script>
 import axios from 'axios';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'AdminDashboardLobbies',
@@ -111,22 +112,17 @@ export default {
       successMessage: '',
     };
   },
+  computed: {
+    ...mapGetters(['allLobbiesAdmin']),
+  },
   created() {
-    const API_URL = 'http://127.0.0.1:5000/admin/list-lobbies';
-    axios
-      .get(API_URL, {
-        headers: {
-          authorization: localStorage.token,
-        },
-      })
-      .then((lobbies) => {
-        this.lobbies = lobbies.data;
-      })
-      .catch((error) => {
-        this.errorMessage = error.response.data;
-      });
+    this.fetchLobbiesAdmin().then(() => {
+      this.lobbies = this.allLobbiesAdmin;
+    });
   },
   methods: {
+    ...mapActions(['fetchLobbiesAdmin']),
+
     redirect() {
       this.$router.push('/admin-dashboard');
     },
@@ -144,7 +140,7 @@ export default {
       this.successMessage = '';
       this.editLobbyForm = true;
     },
-    adminRefresh() {
+    async adminRefresh() {
       this.errorMessage = '';
       this.successMessage = '';
       this.currentLobbyPassword = '';
@@ -152,62 +148,44 @@ export default {
       this.currentLobbyId = '';
       this.currentLobbyName = '';
       this.editLobbyForm = false;
-      const API_URL = 'http://127.0.0.1:5000/admin/list-lobbies';
-      axios
-        .get(API_URL, {
-          headers: {
-            authorization: localStorage.token,
-          },
-        })
-        .then((lobbies) => {
-          this.lobbies = lobbies.data;
-        })
-        .catch((error) => {
-          this.errorMessage = error.response.data;
-        });
+
+      await this.fetchLobbiesAdmin();
+      this.lobbies = this.allLobbiesAdmin;
     },
     adminLogout() {
       localStorage.token = '';
       this.$router.push('/login');
     },
-    adminEditLobby() {
-      const API_URL = 'http://127.0.0.1:5000/admin/change-lobby';
-      axios
-        .put(
-          API_URL,
-          {
-            lobbyId: this.currentLobbyId,
-            lobbyName: this.currentLobbyName,
-            isPrivate: this.currentLobbyPrivate,
-            lobbyPassword: this.currentLobbyPassword,
-          },
-          {
-            headers: {
-              authorization: localStorage.token,
-            },
-          }
-        )
-        .then((message) => {
-          this.successMessage = message.data;
+    async adminEditLobby() {
+      try {
+        const API_URL = process.env.VUE_APP_EDIT_LOBBY;
+        const body = {
+          lobbyId: this.currentLobbyId,
+          lobbyName: this.currentLobbyName,
+          isPrivate: this.currentLobbyPrivate,
+          lobbyPassword: this.currentLobbyPassword,
+        };
+        const message = await axios.put(API_URL, body, {
+          headers: { authorization: localStorage.token },
         });
+        this.successMessage = message.data;
+      } catch (error) {
+        this.errorMessage = error.response.data;
+      }
     },
-    adminDeleteLobby(lobby_id) {
-      const API_URL = 'http://127.0.0.1:5000/admin/delete-lobby';
-      axios
-        .delete(API_URL, {
-          headers: {
-            Authorization: localStorage.token,
-          },
+    async adminDeleteLobby(lobby_id) {
+      try {
+        const API_URL = process.env.VUE_APP_DELETE_LOBBY;
+        const message = await axios.delete(API_URL, {
+          headers: { authorization: localStorage.token },
           data: {
             lobbyId: lobby_id,
           },
-        })
-        .then((message) => {
-          this.successMessage = message.data;
-        })
-        .catch((error) => {
-          this.errorMessage = error.response.data;
         });
+        this.successMessage = message.data;
+      } catch (error) {
+        this.errorMessage = error.response.data;
+      }
     },
   },
 };

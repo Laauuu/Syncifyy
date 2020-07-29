@@ -2,8 +2,8 @@
   <div>
     <h1 style="text-align: center; margin-top: 2em;">Admin Login</h1>
     <form
-      style="text-align: center; margin-top: 1em;"
       @submit.prevent="adminLogin()"
+      style="text-align: center; margin-top: 1em;"
     >
       <div>
         <label for="username">Username</label><br />
@@ -41,18 +41,18 @@ export default {
   methods: {
     adminLogin() {
       if (this.username == process.env.VUE_APP_ADMIN_USERNAME) {
+        // if username == to admin username
         if (this.password == process.env.VUE_APP_ADMIN_PASSWORD) {
-          localStorage.token = process.env.VUE_APP_ADMIN_TOKEN;
-          this.$router.push('/admin-dashboard');
+          // if password == to admin password
+          localStorage.token = process.env.VUE_APP_ADMIN_TOKEN; // assign the admin token
+          this.$router.push('/admin-dashboard'); // push to admin dashboard
         } else {
-          this.errorMessage = 'Username / Password is invalid.';
+          this.errorMessage = 'Username / Password is invalid.'; // wrong credentials
         }
       } else {
-        this.errorMessage = 'Username / Password is invalid.';
+        this.errorMessage = 'Username / Password is invalid.'; // wrong credentials
       }
     },
   },
 };
 </script>
-
-<style></style>

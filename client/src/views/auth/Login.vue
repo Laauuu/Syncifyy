@@ -2,8 +2,8 @@
   <div class="Login">
     <h1 style="text-align: center; margin-top: 2em;">Login</h1>
     <form
-      style="text-align: center; margin-top: 1em;"
       @submit.prevent="login()"
+      style="text-align: center; margin-top: 1em;"
     >
       <div>
         <label for="username">Username</label><br />
@@ -32,11 +32,11 @@
 </template>
 
 <script>
-const validate = require('validate.js'); // validation package
-const axios = require('axios');
+import validate from 'validate.js'; // validate user input on login
+import axios from 'axios'; // AJAX
 
 const constraints = {
-  // simple validation
+  // user input constraints
   username: {
     presence: true,
     length: {
@@ -63,27 +63,28 @@ export default {
     };
   },
   methods: {
-    login() {
+    async login() {
       const body = {
+        // input from user
         username: this.username,
         password: this.password,
       };
-      const validationError = validate(body, constraints);
+      const validationError = validate(body, constraints); // validate the body against constraints
       if (validationError) {
-        this.errorMessage = 'Username / Password is invalid.';
+        this.errorMessage = 'Username / Password is invalid.'; // if error return according error message
       } else {
-        this.errorMessage = '';
+        // everything went fine
+        this.errorMessage = ''; // clear of all errors
         const API_URL = process.env.VUE_APP_LOGIN;
-        axios
-          .post(API_URL, body)
-          .then((tokenData) => {
-            this.errorMessage = '';
-            localStorage.token = tokenData.data.token;
-            this.$router.push('/lobbies');
-          })
-          .catch((error) => {
-            this.errorMessage = error.response.data;
-          });
+        try {
+          // fetch token
+          const tokenData = await axios.post(API_URL, body);
+          localStorage.token = tokenData.data.token;
+          this.$router.push('/lobbies');
+        } catch (error) {
+          // failed to fetch token
+          this.errorMessage = error.response.data;
+        }
       }
     },
   },

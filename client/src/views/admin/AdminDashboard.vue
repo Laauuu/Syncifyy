@@ -77,9 +77,10 @@
 </template>
 
 <script>
-import axios from 'axios';
-
+const axios = require('axios');
 const validate = require('validate.js');
+
+import { mapGetters, mapActions } from 'vuex';
 
 const constraints = {
   password: {
@@ -105,23 +106,20 @@ export default {
       successMessage: '',
     };
   },
+  computed: {
+    ...mapGetters(['allUsersAdmin']), // getters from vuex (all users)
+  },
   created() {
-    const API_URL = process.env.VUE_APP_LIST_USERS;
-    axios
-      .get(API_URL, {
-        headers: {
-          Authorization: localStorage.token,
-        },
-      })
-      .then((users) => {
-        this.users = users.data;
-      })
-      .catch((error) => {
-        this.errorMessage = error.response.data;
-      });
+    // calling function to send AJAX request and fetch data
+    this.fetchUsersAdmin().then(() => {
+      this.users = this.allUsersAdmin;
+    });
   },
   methods: {
+    ...mapActions(['fetchUsersAdmin']), // actions from vuex (fetches data)
     passwordForm(user_id) {
+      // when editing password display the user that is recieving changes
+      // user_id is the id of the user being edited
       this.currentUserId = user_id;
       for (var i = 0; i < this.users.length; i++) {
         if (this.users[i]._id == this.currentUserId) {
@@ -134,81 +132,71 @@ export default {
       this.showPasswordForm = true;
     },
     reset() {
+      // cancel button to close out of any forms or clear error messages
       this.showPasswordForm = false;
       this.errorMessage = '';
       this.successMessage = '';
       this.newPassword = '';
     },
     redirect() {
+      // push router to other panel (manage lobbies)
       this.$router.push('/admin-dashboard/manage-lobbies');
     },
     adminLogout() {
+      // log out of admin
       localStorage.token = '';
       this.$router.push('/login');
     },
-    adminRefresh() {
-      const API_URL = process.env.VUE_APP_LIST_USERS;
-      axios
-        .get(API_URL, {
-          headers: {
-            Authorization: localStorage.token,
-          },
-        })
-        .then((users) => {
-          this.users = users.data;
-        })
-        .catch((error) => {
-          this.errorMessage = error.response.data;
-        });
+    async adminRefresh() {
+      // refresh data to see any new updates
+      await this.fetchUsersAdmin(); // re-fetching data
+      this.users = this.allLobbiesAdmin; // display the new fetched data
     },
-    adminChangePassword() {
+    async adminChangePassword() {
       const validationError = validate(
+        // validating new password against constraints
         { password: this.newPassword },
         constraints
       );
       if (validationError) {
+        // if it was an invalid password display error
         this.errorMessage = validationError.password[0];
       } else {
+        // the password was valid
         this.errorMessage = '';
-        const API_URL = process.env.VUE_APP_CHANGE_PASSWORD;
-        axios
-          .put(
-            API_URL,
-            { userId: this.currentUserId, newPassword: this.newPassword },
-            {
-              headers: {
-                Authorization: localStorage.token,
-              },
-            }
-          )
-          .then((message) => {
-            this.successMessage = message.data;
-          })
-          .catch((error) => {
-            this.errorMessage = error.response.data;
+        try {
+          // send AJAX request to edit in database
+          const API_URL = process.env.VUE_APP_CHANGE_PASSWORD;
+          const body = {
+            userId: this.currentUserId,
+            newPassword: this.newPassword,
+          };
+          const message = await axios.put(API_URL, body, {
+            headers: {
+              authorization: localStorage.token,
+            },
           });
+          this.successMessage = message.data;
+        } catch (error) {
+          // if something went wrong display error
+          this.errorMessage = error.response.data;
+        }
       }
     },
-    adminDeleteAccount(user_id) {
-      const API_URL = process.env.VUE_APP_REMOVE_USER;
-      axios
-        .delete(API_URL, {
-          headers: {
-            Authorization: localStorage.token,
-          },
-          data: {
-            userId: user_id,
-          },
-        })
-        .then((message) => {
-          this.successMessage = message.data;
-        })
-        .catch((error) => {
-          this.errorMessage = error.response.data;
+    async adminDeleteAccount(user_id) {
+      // for the current user ID delete account
+      try {
+        const API_URL = process.env.VUE_APP_REMOVE_USER;
+        const message = await axios.delete(API_URL, {
+          headers: { Authorization: localStorage.token },
+          data: { userId: user_id },
         });
+        this.successMessage = message.data;
+      } catch (error) {
+        // if something went wrong display error
+        this.errorMessage = error.response.data;
+      }
     },
   },
 };
 </script>
-
-<style></style>
