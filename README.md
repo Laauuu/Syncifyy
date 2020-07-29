@@ -1,10 +1,10 @@
-# Rabbit-Clone
+# Youtube-Sync
 
 ## Project Summary - 
-This project is a clone of Rabbit, an ios app that allowed users to watch things like netflix, hulu, etc. with friends and family. In this web app you're able to watch youtube realtime with other people!
+This web app enables you to create an account and start a new lobby. Here other users can join in and watch synchronized youtube videos realtime! If you're looking to demo, scroll down to the bottom of the README :)
 
 ## Motivation -
-Because of coronavirus, it has been harder to keep in touch with friends, and I wanted to create something interactive that I could use with my friends and have fun with. Also, when a youtube livestream is going on or there is a new video out I want to watch with my friends, instead of having to time up exactly when we're going to press play, who's leaving and pause, etc. this application takes care of all of that. I definetely want to improve on this in the future to add more features to make it a pleasureable experience. 
+Because of coronavirus, it has been harder to keep in touch with peers, and I wanted to create something interactive that I could use with them and have fun with. When a youtube livestream is going on or there's a new video out I want to watch with my friends, instead of having to time up exactly when we're going to press play, who's leaving and pause, etc. this application takes care of all of that. In the future im looking into adding a chat feature so you can communicate with who you're watching with, without having to know who they are beforehand or communicate using another means (i.e. discord, zoom). 
 
 ## Screenshots - 
 ![Lobbies](https://i.imgur.com/j38OOY0.png)
@@ -23,4 +23,4 @@ Because of coronavirus, it has been harder to keep in touch with friends, and I 
 - MongoDB
 - Node / Express
 - Socket.io
-- Vue
+- Vue / Vuex
