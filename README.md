@@ -23,4 +23,4 @@ Because of coronavirus, it has been harder to keep in touch with friends, and I 
 - MongoDB
 - Node / Express
 - Socket.io
-- Vue
+- Vue / Vuex
