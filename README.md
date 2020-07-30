@@ -24,3 +24,12 @@ Because of coronavirus, it has been harder to keep in touch with peers, and I wa
 - Node / Express
 - Socket.io
 - Vue / Vuex
+
+### Deployment - 
+
+- Deployed backend on an ubuntu 18.04 EC2 instance (AWS)
+- Deployed frontend on a s3 bucket (AWS)
+
+## Demo -
+
+http://youtube-sync-project.s3-website-us-east-1.amazonaws.com/
