@@ -15,8 +15,8 @@ const bcrypt = require('bcrypt');
 // helper functions for various http status code errors (400's..500s)
 const helper = require('../../../helpers/errorFunctions');
 
-// Users schema for users collection in database
-const Users = require('../../../database/Models/UsersSchema');
+// Users model for users collection in database
+const User = require('../../../database/Models/UsersModel');
 
 // validate.js constraints (change password)
 const constraints = {
@@ -31,7 +31,7 @@ const constraints = {
 
 // GET /admin/list-users
 router.get('/list-users', async (req, res) => {
-  const allUsers = await Users.find(); // query database for all users
+  const allUsers = await User.findAll(); // query database for all users
   res.status(200); // return status code 200 OK
   res.json(allUsers); // send all users to the client (admin)
 });
@@ -55,7 +55,14 @@ router.put('/change-password', (req, res) => {
         helper.httpError400(res, 'Issue hashing password!'); // send according error message back to client
       } else {
         // everything was good
-        await Users.updateOne({ _id: userId }, { password: hash }); // query database and insert new password in the document
+        await User.update(
+          { password: hash },
+          {
+            where: {
+              id: userId,
+            },
+          }
+        ); // query database and insert new password in the document
         res.status(200); // return status code 200 OK
         res.json('Successfully changed password!'); // send success message to client
       }
@@ -67,8 +74,16 @@ router.put('/change-password', (req, res) => {
 router.delete('/remove-user', async (req, res) => {
   const userId = req.body.userId; // ID of user being deleted
 
-  const user = await Users.findOne({ _id: userId }); // query database for username
-  await Users.deleteOne({ _id: userId }); // delete user in the database
+  const user = await User.findOne({
+    where: {
+      id: userId,
+    },
+  }); // query database for username
+  await User.destroy({
+    where: {
+      id: userId,
+    },
+  }); // delete user in the database
   res.status(200); // return status code 200 OK
   res.json(`Successfully deleted ${user.username}`); // send success message to client
 });

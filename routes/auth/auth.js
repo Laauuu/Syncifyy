@@ -17,23 +17,23 @@ const bcrypt = require('bcrypt');
 // helper functions for various http status code errors (400's..500s)
 const helper = require('../../helpers/errorFunctions');
 
-// Users schema for users collection in database
-const Users = require('../../database/Models/UsersSchema');
+// Users Model for users collection in database
+const Users = require('../../database/Models/UsersModel');
 
 // validate.js constraints (on registration)
 const constraints = {
   username: {
     presence: true,
     length: {
-      minimum: 4, // must have at least 4 characters
-      message: 'must be at least 4 characters!',
+      maximum: 20,
+      tooLong: `must be less than 20 characters long!`,
     },
   },
   password: {
     presence: true,
     length: {
-      minimum: 6, // must have at least 6 characters
-      message: 'must be at least 6 characters!',
+      maximum: 30, // must have at least 6 characters
+      tooLong: 'must be less than 30 characters long!',
     },
   },
 };
@@ -54,13 +54,19 @@ router.post('/register', async (req, res) => {
     }
   } else {
     // passed validation
-    const user = await Users.findOne({ username }); // query database to check if user has already been created
+    const user = await Users.findOne({
+      // query database to check if user has already been created
+      where: {
+        username,
+      },
+    });
+
     if (!user) {
       // if it hasn't already been created
       const saltRounds = 12;
       bcrypt.hash(password, saltRounds, async (err, hash) => {
         // hash password
-        await Users.create({ username, password: hash }); // insert in db
+        const newUser = await Users.create({ username, password: hash }); // insert in db
         res.status(200); // return with status code 200 OK
         res.end(); // end
       });
@@ -75,12 +81,18 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
+
   const validationError = validate({ username, password }, constraints); // validate user input
   if (validationError) {
     // if not valid...
     helper.httpError400(res, 'Username / Password is invalid.'); // send according error message back to client
   } else {
-    const user = await Users.findOne({ username }); // query database for username
+    const user = await Users.findOne({
+      // query database for username
+      where: {
+        username,
+      },
+    });
     if (user) {
       // if the username was found
       bcrypt.compare(password, user.password, (err, result) => {
@@ -89,7 +101,7 @@ router.post('/login', async (req, res) => {
           // if it was correct
           jwt.sign(
             // sign a payload with token for user
-            { _id: user._id, username, lobby: user.lobby }, // payload data (user_id, username, current lobby)
+            { id: user.id, username, lobby: user.lobby }, // payload data (user_id, username, current lobby)
             process.env.TOKEN_SECRET,
             { algorithm: process.env.TOKEN_ALGO },
             (err, token) => {
