@@ -46,7 +46,7 @@
 
 <script>
 import io from 'socket.io-client';
-const axios = require('axios');
+import axios from 'axios';
 
 export default {
   name: 'MainLobbyView',
@@ -94,23 +94,22 @@ export default {
       this.socket.emit('paused', this.currentLobbyId); // emit event to all clients (in the lobby)
     },
     async switchVideo() {
-      // insert a new url and refresh page to display new video
-      let newVideoId = this.newVideoURL.split('=')[1]; // parse the youtube URL
-      this.newVideoURL = ''; // once it has been parsed set this value to blank again
-
-      if (newVideoId == undefined) {
-        // if the url was invalid
-        this.errorMessage = 'Invalid URL!'; // set to invalid
+      const newVideo = this.$youtube.getIdFromUrl(this.newVideoURL);
+      if (newVideo == null) {
+        this.errorMessage = 'Invalid URL!'; // add timeout
       } else {
-        // send request to server to update the lobbies current video being watched
-        const API_URL = process.env.VUE_APP_CHANGE_VIDEO;
         this.errorMessage = '';
-        await axios.put(
-          API_URL,
-          { newVideoId, lobbyId: this.currentLobbyId },
-          { headers: { authorization: localStorage.token } }
-        );
-        this.socket.emit('new-video', this.currentLobbyId); // emit to all clients a new video has been inserted (in lobby)
+        try {
+          const API_URL = 'http://127.0.0.1:5001/lobby/change-video';
+          await axios.put(
+            API_URL,
+            { lobbyId: this.currentLobbyId, newVideoId: newVideo },
+            { headers: { authorization: localStorage.token } }
+          );
+          this.socket.emit('new-video', this.currentLobbyId); // emit to all clients a new video has been inserted (in lobby)
+        } catch (error) {
+          this.errorMessage = error.response.data;
+        }
       }
     },
     findCursorTime: function(e) {
@@ -145,8 +144,8 @@ export default {
 
       let lobbies = response.data;
       for (var i = 0; i < lobbies.length; i++) {
-        if (lobbies[i]._id == this.currentLobbyId) {
-          if (clientsLobbyId == lobbies[i]._id) {
+        if (lobbies[i].uuid == this.currentLobbyId) {
+          if (clientsLobbyId == lobbies[i].uuid) {
             return true;
           }
         }
@@ -170,23 +169,27 @@ export default {
       .then((response) => {
         const lobbies = response.data;
         for (var i = 0; i < lobbies.length; i++) {
-          if (lobbies[i]._id == currRouteId) {
+          if (lobbies[i].uuid == currRouteId) {
             this.lobbyTitle = lobbies[i].title;
-            this.currentLobbyId = lobbies[i]._id;
+            this.currentLobbyId = lobbies[i].uuid;
           }
         }
+
         axios
           .post(
             T_API_URL,
-            { lobbyId: this.currentLobbyId },
-            { headers: { authorization: localStorage.token } }
+            {
+              lobbyId: this.currentLobbyId,
+            },
+            {
+              headers: {
+                authorization: localStorage.token,
+              },
+            }
           )
-          .then((watching) => {
-            this.videoId = watching.data;
+          .then((videoId) => {
+            this.videoId = videoId.data;
           });
-      })
-      .catch((error) => {
-        this.errorMessage = error.response.data;
       });
 
     axios.put(

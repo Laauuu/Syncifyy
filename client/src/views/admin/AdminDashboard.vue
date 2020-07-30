@@ -7,15 +7,15 @@
         <h2>Manage Users</h2>
         <li
           v-for="user in users"
-          :key="user._id"
+          :key="user.id"
           style="font-size: 18px; margin-top: 10px;"
         >
           {{ user.username }}
-          <button @click="passwordForm(user._id)">
+          <button @click="passwordForm(user.id)">
             change password
           </button>
           <button
-            @click="adminDeleteAccount(user._id)"
+            @click="adminDeleteAccount(user.id)"
             style="margin-left: 10px;"
           >
             delete account
@@ -122,7 +122,7 @@ export default {
       // user_id is the id of the user being edited
       this.currentUserId = user_id;
       for (var i = 0; i < this.users.length; i++) {
-        if (this.users[i]._id == this.currentUserId) {
+        if (this.users[i].id == this.currentUserId) {
           this.currentUsername = this.users[i].username;
         }
       }

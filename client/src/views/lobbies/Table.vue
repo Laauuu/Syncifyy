@@ -10,13 +10,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="lobby in lobbies" :key="lobby._id">
+        <tr v-for="lobby in lobbies" :key="lobby.uuid">
           <td>{{ lobby.title }}</td>
           <td>{{ lobby.owner }}</td>
           <td>{{ lobby.private }}</td>
           <td>
             <button
-              @click="checkIfPrivate(lobby.private, lobby.password, lobby._id)"
+              @click="checkIfPrivate(lobby.private, lobby.password, lobby.uuid)"
             >
               Join
             </button>

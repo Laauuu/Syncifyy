@@ -48,10 +48,10 @@ router.put('/change-video', async (req, res) => {
 });
 
 // POST /lobby/currently-watching
-router.get('/currently-watching', async (req, res) => {
+router.post('/currently-watching', async (req, res) => {
   const lobbyId = req.body.lobbyId; // current lobby the user is in
 
-  const lobby = await Lobbies.findOne({ uuid: lobbyId }); // query database for the current lobby
+  const lobby = await Lobbies.findOne({ where: { uuid: lobbyId } }); // query database for the current lobby
   res.status(200); // return status code 200 OK
   res.json(lobby.youtubeId); // send the client the id of the video being watched
 });

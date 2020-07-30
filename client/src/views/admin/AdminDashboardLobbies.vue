@@ -7,16 +7,16 @@
         <h2>Manage Lobbies</h2>
         <li
           v-for="lobby in lobbies"
-          :key="lobby._id"
+          :key="lobby.uuid"
           style="font-size: 18px; margin-top: 10px;"
         >
           {{ lobby.title }} - {{ lobby.private }} -
           {{ lobby.owner }}
-          <button @click="showEditLobbyForm(lobby._id)">
+          <button @click="showEditLobbyForm(lobby.uuid)">
             edit lobby
           </button>
           <button
-            @click="adminDeleteLobby(lobby._id)"
+            @click="adminDeleteLobby(lobby.uuid)"
             style="margin-left: 10px;"
           >
             delete lobby
@@ -129,7 +129,7 @@ export default {
     showEditLobbyForm(lobby_id) {
       this.currentLobbyId = lobby_id;
       for (var i = 0; i < this.lobbies.length; i++) {
-        if (this.lobbies[i]._id == this.currentLobbyId) {
+        if (this.lobbies[i].uuid == this.currentLobbyId) {
           this.currentLobbyName = this.lobbies[i].title;
           this.currentLobbyPrivate = this.lobbies[i].private;
           this.currentLobbyPassword = this.lobbies[i].password;
@@ -190,5 +190,3 @@ export default {
   },
 };
 </script>
-
-<style></style>
