@@ -1,7 +1,7 @@
 <template>
   <div class="Login">
     <div class="text-center text-4xl mt-5">Login</div>
-    <form @submit.prevent="login()" class="text-center">
+    <form v-if="!loading" @submit.prevent="login()" class="text-center">
       <div class="mt-5">
         <input
           v-model="username"
@@ -33,7 +33,14 @@
         />
       </div>
     </form>
-    <div class="text-center">
+    <img
+      v-if="loading"
+      src="../../../public/loadingAnimation.svg"
+      alt=""
+      class="loading"
+      style="margin-top: 4em;"
+    />
+    <div v-if="!loading" class="text-center">
       <div class="mt-4">
         <a href="/register">Register?</a>
       </div>
@@ -73,6 +80,7 @@ export default {
       username: '',
       password: '',
       errorMessage: '',
+      loading: false,
     };
   },
   methods: {
@@ -88,14 +96,17 @@ export default {
       } else {
         // everything went fine
         this.errorMessage = ''; // clear of all errors
+        this.loading = true;
         const API_URL = process.env.VUE_APP_LOGIN;
         try {
           // fetch token
           const tokenData = await axios.post(API_URL, body);
           localStorage.token = tokenData.data.token;
           this.$router.push('/lobbies');
+          this.loading = false;
         } catch (error) {
           // failed to fetch token
+          this.loading = false;
           this.errorMessage = error.response.data;
         }
       }

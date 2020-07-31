@@ -5,6 +5,10 @@
         href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap"
         rel="stylesheet"
       />
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+      />
     </head>
     <div>
       <b-navbar toggleable="lg" type="dark" variant="danger">
@@ -92,5 +96,10 @@ VUE_APP_DELETE_LOBBY = http://ec2-54-158-184-106.compute-1.amazonaws.com:5000/ad
 * {
   margin: 0px;
   padding: 0px;
+}
+
+.loading {
+  width: 5em;
+  margin: 0 auto;
 }
 </style>

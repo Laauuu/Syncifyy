@@ -16,7 +16,23 @@ const actions = {
     const response = await axios.get(API_URL, {
       headers: { Authorization: localStorage.token },
     });
-    commit('setLobbies', response.data);
+
+    let tableStructure = [];
+    let tablePage = [];
+
+    for (var i = 0; i < response.data.length; i++) {
+      tablePage.push(response.data[i]);
+
+      if (tablePage.length >= 8) {
+        tableStructure.push(tablePage);
+        tablePage = [];
+      }
+    }
+
+    if (tablePage.length > 0) {
+      tableStructure.push(tablePage);
+    }
+    commit('setLobbies', tableStructure);
   },
   async fetchLobbiesAdmin({ commit }) {
     const API_URL = process.env.VUE_APP_LIST_LOBBIES;

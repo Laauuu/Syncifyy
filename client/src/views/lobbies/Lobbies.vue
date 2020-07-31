@@ -9,10 +9,10 @@
     <div class="flex justify-center mt-4 items-center">
       <div class="mr-3 text-xl">
         <button
-          @click="refresh()"
-          class="bg-red-600 text-white p-1 rounded focus:outline-none"
+          @click="showCreateForm()"
+          class="bg-red-600 pl-2 pr-2 pt-1 pb-1 text-white focus:outline-none rounded"
         >
-          Refresh Table
+          <i class="fa fa-plus" style="font-size:20px"></i>
         </button>
       </div>
       <div class="text-5xl">
@@ -20,38 +20,74 @@
       </div>
       <div class="ml-3 text-xl">
         <button
-          @click="create = !create"
-          class="bg-red-600 text-white p-1 rounded focus:outline-none"
+          @click="refresh()"
+          class="bg-red-600 pl-2 pr-2 pt-1 pb-1 text-white focus:outline-none rounded"
         >
-          Create Lobby
+          <i class="fa fa-refresh" style="font-size:20px"></i>
         </button>
       </div>
     </div>
 
-    <Table :lobbies="allLobbies" />
+    <div v-if="!create">
+      <Table v-if="!loading" :lobbies="allLobbies" />
+    </div>
 
-    <div v-if="create">
+    <img
+      v-if="loading"
+      src="../../../public/loadingAnimation.svg"
+      alt=""
+      class="loading"
+    />
+
+    <div v-if="create" class="text-center mt-16">
       <form @submit.prevent="createLobby()">
         <input
           v-model="lobbyName"
           type="text"
           placeholder="Lobby Name"
           autocomplete="off"
+          class="border-b focus:outline-none"
+          style="width: 18%; font-size: 18px;"
         /><br />
-        <input v-model="isPrivate" type="checkbox" />
-        Private?
-        <br />
+
+        <b-form-checkbox v-model="isPrivate" class="mt-5" switch
+          >Private?</b-form-checkbox
+        >
+
         <div v-if="isPrivate">
           <input
             v-model="lobbyPassword"
             type="password"
             placeholder="Lobby Password"
+            class="border-b focus:outline-none mt-4"
+            style="width: 18%; font-size: 18px;"
           /><br />
         </div>
-        <input type="submit" value="Create" />
+        <input
+          type="submit"
+          value="Create"
+          class="mt-5 p-2 pl-3 pr-3 rounded focus:outline-none hover:opacity-75"
+        />
+        <input
+          type="button"
+          value="Cancel"
+          @click="showCreateForm()"
+          class="mt-5 p-2 pl-3 pr-3 rounded focus:outline-none hover:opacity-75 ml-5"
+        />
       </form>
     </div>
-    <p>{{ errorMessage }}</p>
+    <div class="text-center">
+      <p class="mt-5">Build v0.1</p>
+      <p class="mt-2">
+        This is still in development so if you come across any bugs please
+      </p>
+      <p>
+        report them, all feedback helps! Join the discord as well to suggest new
+      </p>
+      <p class="mb-3">features and stay up-to-date!</p>
+      <a href="https://discord.gg/tBFcVsx">https://discord.gg/tBFcVsx</a>
+    </div>
+    <p class="text-center text-red-600">{{ errorMessage }}</p>
   </div>
 </template>
 
@@ -74,6 +110,7 @@ export default {
       isPrivate: false,
       lobbyPassword: '',
       errorMessage: '',
+      loading: false,
     };
   },
   computed: {
@@ -81,19 +118,25 @@ export default {
   },
   created() {
     const API_URL = process.env.VUE_APP_USER_LOBBY;
+    this.loading = true;
 
     axios // this AJAX request just makes sure that the user isn't already in a lobby and if so redirect user to lobby
       .get(API_URL, { headers: { authorization: localStorage.token } })
       .then((lobby) => {
         if (lobby.data != null) {
           this.$router.push(`/lobbies/${lobby.data}`);
+          this.loading = false;
         }
       })
       .catch((error) => {
+        this.loading = false;
         this.errorMessage = error.response.data;
       });
 
-    this.fetchLobbies(); // fetch lobby data
+    this.fetchLobbies().then(() => {
+      // fetch lobby data
+      this.loading = false;
+    });
   },
   methods: {
     ...mapActions(['fetchLobbies']), // actions from vuex (send request to get lobby data)
@@ -124,7 +167,18 @@ export default {
     },
     refresh() {
       // refresh to get new updates
-      this.fetchLobbies(); // re-fetch data
+      this.loading = true;
+      this.fetchLobbies().then(() => {
+        // re-fetch data
+        this.loading = false;
+      });
+    },
+    showCreateForm() {
+      this.lobbyName = '';
+      this.isPrivate = false;
+      this.lobbyPassword = '';
+      this.errorMessage = '';
+      this.create = !this.create;
     },
   },
 };

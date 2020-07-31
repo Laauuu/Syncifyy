@@ -63,7 +63,7 @@ router.post('/register', async (req, res) => {
 
     if (!user) {
       // if it hasn't already been created
-      const saltRounds = 12;
+      const saltRounds = 10;
       bcrypt.hash(password, saltRounds, async (err, hash) => {
         // hash password
         const newUser = await Users.create({ username, password: hash }); // insert in db
@@ -103,7 +103,6 @@ router.post('/login', async (req, res) => {
             // sign a payload with token for user
             { id: user.id, username, lobby: user.lobby }, // payload data (user_id, username, current lobby)
             process.env.TOKEN_SECRET,
-            { algorithm: process.env.TOKEN_ALGO },
             (err, token) => {
               if (err) {
                 // if there was an error for some reason

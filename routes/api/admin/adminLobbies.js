@@ -19,13 +19,14 @@ router.put('/change-lobby', async (req, res) => {
   const private = req.body.isPrivate; // still private? (bool)
   const password = req.body.lobbyPassword; // new password
 
+  const lobby = await Lobbies.findOne({ where: { uuid: lobbyId } }); // query database for the lobby title that is being updated
   const updated = await Lobbies.update(
     // query and update document with new lobby information
     { title, private, password },
     { where: { uuid: lobbyId } }
   );
   res.status(200); // return status code 200 OK
-  res.json('Successfully edited lobby!'); // send success message to client
+  res.json(`Successfully edited ${lobby.title}!`); // send success message to client
 });
 
 // DELETE /admin/delete-lobby

@@ -1,7 +1,7 @@
 <template>
   <div class="Register">
     <div class="text-center text-4xl mt-5">Register</div>
-    <form @submit.prevent="register()" class="text-center">
+    <form v-if="!loading" @submit.prevent="register()" class="text-center">
       <div class="mt-5">
         <input
           v-model="username"
@@ -41,7 +41,14 @@
         class="mt-5 p-2 pl-3 pr-3 rounded hover:opacity-75 focus:outline-none"
       />
     </form>
-    <div class="text-center mt-4">
+    <img
+      v-if="loading"
+      src="../../../public/loadingAnimation.svg"
+      alt=""
+      class="loading"
+      style="margin-top: 4em;"
+    />
+    <div v-if="!loading" class="text-center mt-4">
       <a href="/">Login?</a>
     </div>
   </div>
@@ -76,6 +83,7 @@ export default {
       password: '',
       c_password: '',
       errorMessage: '',
+      loading: false,
     };
   },
   methods: {
@@ -97,13 +105,16 @@ export default {
           }
         } else {
           this.errorMessage = ''; // error message
+          this.loading = true;
           try {
             const API_URL = process.env.VUE_APP_REGISTER;
             await axios.post(API_URL, body); // fetch
             this.errorMessage = '';
             this.$router.push('/');
+            this.loading = false;
           } catch (error) {
             // if something went wrong
+            this.loading = false;
             this.errorMessage = error.response.data; // display error message
           }
         }
