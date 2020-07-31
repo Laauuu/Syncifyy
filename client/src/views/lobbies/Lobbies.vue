@@ -1,16 +1,23 @@
 <template>
   <div>
-    <button
-      @click="logout()"
-      class="text-xl bg-gray-800 p-2 rounded-br text-white"
-    >
-      Logout
-    </button>
+    <div class="flex">
+      <button
+        @click="logout()"
+        class="text-xl bg-blue-600 p-2 rounded-b text-white focus:outline-none hover:bg-blue-500"
+      >
+        Logout
+      </button>
+      <button
+        class="text-xl bg-blue-600 p-2 rounded-b text-white ml-3 focus:outline-none hover:bg-blue-500"
+      >
+        Account Settings (Coming Soon)
+      </button>
+    </div>
     <div class="flex justify-center mt-4 items-center">
       <div class="mr-3 text-xl">
         <button
           @click="showCreateForm()"
-          class="bg-red-600 pl-2 pr-2 pt-1 pb-1 text-white focus:outline-none rounded"
+          class="bg-red-600 pl-2 pr-2 pt-1 pb-1 text-white focus:outline-none rounded hover:bg-red-500"
         >
           <i class="fa fa-plus" style="font-size:20px"></i>
         </button>
@@ -21,7 +28,7 @@
       <div class="ml-3 text-xl">
         <button
           @click="refresh()"
-          class="bg-red-600 pl-2 pr-2 pt-1 pb-1 text-white focus:outline-none rounded"
+          class="bg-red-600 pl-2 pr-2 pt-1 pb-1 text-white focus:outline-none rounded hover:bg-red-500"
         >
           <i class="fa fa-refresh" style="font-size:20px"></i>
         </button>
@@ -85,7 +92,8 @@
         report them, all feedback helps! Join the discord as well to suggest new
       </p>
       <p class="mb-3">features and stay up-to-date!</p>
-      <a href="https://discord.gg/tBFcVsx">https://discord.gg/tBFcVsx</a>
+      <a href="https://discord.gg/tBFcVsx">https://discord.gg/tBFcVsx</a><br />
+      <div class="mt-2">Find Bugs? - <a href="#">Report an Issue</a> 🦠</div>
     </div>
     <p class="text-center text-red-600">{{ errorMessage }}</p>
   </div>

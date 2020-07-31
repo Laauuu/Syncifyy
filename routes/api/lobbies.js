@@ -70,4 +70,16 @@ router.get('/open-lobbies', async (req, res) => {
   res.json(lobbies); // send all the lobbies in the database to the client
 });
 
+// GET /lobbies/check-connections
+router.get('/check-connections/:lobbyId', async (req, res) => {
+  const lobbyId = req.params.lobbyId;
+  const lobby = await Lobbies.findOne({
+    where: {
+      uuid: lobbyId,
+    },
+  });
+  res.status(200);
+  res.json(lobby.connections);
+});
+
 module.exports = router;

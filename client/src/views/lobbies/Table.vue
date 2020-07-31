@@ -1,11 +1,19 @@
 <template>
   <div>
-    <table class="mt-5">
+    <p
+      style="color: red; margin-bottom: -40px;"
+      class="text-center mt-1 text-xl"
+    >
+      {{ errorMessage }}
+    </p>
+
+    <table v-if="!validatePassword" class="mt-5">
       <thead>
         <tr>
           <th>Lobby</th>
           <th>Owner</th>
-          <th>Private</th>
+          <th>Status</th>
+          <th>Connected</th>
         </tr>
       </thead>
       <tbody>
@@ -18,52 +26,62 @@
           <td>{{ page.title }}</td>
           <td>{{ page.owner }}</td>
           <td v-if="page.private == 1">
-            private
+            <i class="fa fa-lock" style="font-size:24px"></i>
           </td>
           <td v-if="page.private == 0">
-            available
+            <i class="fa fa-unlock-alt" style="font-size:24px"></i>
           </td>
+          <td>{{ page.connections }} / 20</td>
         </tr>
       </tbody>
     </table>
-    <div class="flex justify-center items-center mt-5">
+    <div v-if="!validatePassword" class="flex justify-center items-center mt-5">
       <button
-        class="mr-3 p-2 pl-3 pr-3 bg-red-600 rounded text-white focus:outline-none"
+        class="mr-3 p-2 pl-3 pr-3 bg-red-600 rounded text-white focus:outline-none hover:bg-red-500"
         @click="goLeft()"
       >
         <i class="fa fa-long-arrow-left" style="font-size:24px"></i>
       </button>
       <div>page {{ currentPage + 1 }} / {{ lobbies.length }}</div>
       <button
-        class="ml-3 p-2 pl-3 pr-3 bg-red-600 rounded text-white focus:outline-none"
+        class="ml-3 p-2 pl-3 pr-3 bg-red-600 rounded text-white focus:outline-none hover:bg-red-500"
         @click="goRight()"
       >
         <i class="fa fa-long-arrow-right" style="font-size:24px"></i>
       </button>
     </div>
-    <form
-      v-if="validatePassword"
-      @submit.prevent="redirectIfCorrect()"
-      style="margin-top: 10px;"
-    >
-      <input
-        type="password"
-        v-model="passwordInput"
-        placeholder="Insert Password"
-      />
-      <input type="Submit" value="Submit" style="margin-left: 10px;" />
-      <input
-        type="button"
-        @click="cancel()"
-        value="Cancel"
-        style="margin-left: 10px"
-      />
-    </form>
-    <p style="color: red;">{{ errorMessage }}</p>
+    <div class="text-center">
+      <form
+        v-if="validatePassword"
+        @submit.prevent="redirectIfCorrect()"
+        class="mt-5"
+      >
+        <input
+          type="password"
+          v-model="passwordInput"
+          placeholder="Insert Password"
+          class="border-b focus:outline-none mt-4"
+          style="width: 18%; font-size: 18px;"
+        /><br />
+        <input
+          type="Submit"
+          value="Submit"
+          class="mt-5 p-2 pl-3 pr-3 rounded focus:outline-none hover:opacity-75"
+        />
+        <input
+          type="button"
+          @click="cancel()"
+          value="Cancel"
+          class="mt-5 p-2 pl-3 pr-3 rounded focus:outline-none ml-5 hover:opacity-75"
+        />
+      </form>
+    </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'Table',
   props: {
@@ -80,7 +98,7 @@ export default {
     };
   },
   methods: {
-    checkIfPrivate(privateLobby, password, lobbyId) {
+    async checkIfPrivate(privateLobby, password, lobbyId) {
       // checks if the lobby is private
       if (privateLobby == 1) {
         this.validatePassword = true;
@@ -89,14 +107,22 @@ export default {
       } else {
         this.password = '';
         this.validatePassword = false;
-        this.$router.push(`/lobbies/${lobbyId}`);
+        if (await this.checkConnections(lobbyId)) {
+          this.$router.push(`/lobbies/${lobbyId}`);
+        } else {
+          this.errorMessage = 'Lobby is Full!';
+        }
       }
     },
-    redirectIfCorrect() {
+    async redirectIfCorrect() {
       // if the password inserted was correct..
       if (this.passwordInput == this.password) {
         this.errorMessage = '';
-        this.$router.push(`/lobbies/${this.lobbyId}`); // send to lobby
+        if (await this.checkConnections(lobbyId)) {
+          this.$router.push(`/lobbies/${this.lobbyId}`); // send to lobby
+        } else {
+          this.errorMessage = 'Lobby is Full!';
+        }
       } else {
         this.errorMessage = 'Invalid Password!'; // invalid password
       }
@@ -124,6 +150,18 @@ export default {
       } else {
         this.currentPage = newPage;
       }
+    },
+    async checkConnections(lobby_id) {
+      const API_URL =
+        'http://127.0.0.1:5001/lobbies/check-connections/' + lobby_id;
+      const connections = await axios.get(API_URL, {
+        headers: { authorization: localStorage.token },
+      });
+
+      if (connections.data >= 20) {
+        return false;
+      }
+      return true;
     },
   },
 };

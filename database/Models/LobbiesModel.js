@@ -25,6 +25,10 @@ const Lobbies = sequelize.define(
       type: DataTypes.STRING,
       defaultValue: 'MtN1YnoL46Q',
     },
+    connections: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
     created: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.NOW,
