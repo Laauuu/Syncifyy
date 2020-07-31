@@ -1,36 +1,48 @@
 <template>
   <div class="Register">
-    <h1 style="text-align: center; margin-top: 2em;">Register</h1>
-    <form
-      @submit.prevent="register()"
-      style="text-align: center; margin-top: 1em;"
-    >
-      <div>
-        <label for="username">Username</label><br />
-        <input v-model="username" type="text" name="username" /><br />
-        <small>At least 4 characters.</small><br />
+    <div class="text-center text-4xl mt-5">Register</div>
+    <form @submit.prevent="register()" class="text-center">
+      <div class="mt-5">
+        <input
+          v-model="username"
+          type="text"
+          placeholder="Username"
+          autocomplete="off"
+          class="border-b focus:outline-none"
+          style="width: 18%; font-size: 18px;"
+        />
       </div>
-      <div style="margin-top: 10px;">
-        <label for="password">Password</label><br />
-        <input v-model="password" type="password" name="password" /><br />
-        <small>At least 6 characters.</small><br />
+      <div style="margin-top: 3em;">
+        <input
+          v-model="password"
+          type="password"
+          placeholder="Password"
+          autocomplete="off"
+          class="border-b focus:outline-none"
+          style="width: 18%; font-size: 18px;"
+        />
       </div>
-      <div style="margin-top: 10px;">
-        <label for="password">Confirm Password</label><br />
-        <input v-model="c_password" type="password" name="password" /><br />
-        <small>Passwords must match.</small><br />
+      <div style="margin-top: 3em;">
+        <input
+          v-model="c_password"
+          type="password"
+          placeholder="Confirm Password"
+          autocomplete="off"
+          class="border-b focus:outline-none"
+          style="width: 18%; font-size: 18px;"
+        />
       </div>
-      <p style="color: red; margin-top: 10px; text-align: center;">
+      <p class="text-red-600 mt-3">
         {{ errorMessage }}
       </p>
       <input
         type="submit"
-        value="Register"
-        style="margin-top: 10px; padding: 3px;"
+        value="Create!"
+        class="mt-5 p-2 pl-3 pr-3 rounded hover:opacity-75 focus:outline-none"
       />
     </form>
-    <div style="text-align: center; margin-top: 15px;">
-      <a href="/login">Login?</a>
+    <div class="text-center mt-4">
+      <a href="/">Login?</a>
     </div>
   </div>
 </template>
@@ -43,15 +55,15 @@ const constraints = {
   username: {
     presence: true,
     length: {
-      minimum: 4,
-      message: 'must be at least 4 characters!',
+      maximum: 20,
+      message: 'must be less than 20 characters!',
     },
   },
   password: {
     presence: true,
     length: {
-      minimum: 6,
-      message: 'must be at least 6 characters!',
+      maximum: 30,
+      message: 'must be less than 30 characters!',
     },
   },
 };
@@ -83,16 +95,17 @@ export default {
           } else if (validationError.password) {
             this.errorMessage = validationError.password[0]; // error for invalid password
           }
-        }
-        this.errorMessage = ''; // error message
-        try {
-          const API_URL = process.env.VUE_APP_REGISTER;
-          await axios.post(API_URL, body); // fetch
-          this.errorMessage = '';
-          this.$router.push('/login');
-        } catch (error) {
-          // if something went wrong
-          this.errorMessage = error.response.data; // display error message
+        } else {
+          this.errorMessage = ''; // error message
+          try {
+            const API_URL = process.env.VUE_APP_REGISTER;
+            await axios.post(API_URL, body); // fetch
+            this.errorMessage = '';
+            this.$router.push('/');
+          } catch (error) {
+            // if something went wrong
+            this.errorMessage = error.response.data; // display error message
+          }
         }
       } else {
         // if passwords didn't match

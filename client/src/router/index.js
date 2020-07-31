@@ -15,7 +15,7 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/',
+    path: '/register',
     name: 'Home',
     component: Register,
     beforeEnter: (to, from, next) => {
@@ -27,7 +27,7 @@ const routes = [
     },
   },
   {
-    path: '/login',
+    path: '/',
     name: 'Login',
     component: Login,
     beforeEnter: (to, from, next) => {

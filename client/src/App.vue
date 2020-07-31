@@ -1,10 +1,60 @@
 <template>
   <div id="app">
+    <head>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap"
+        rel="stylesheet"
+      />
+    </head>
+    <div>
+      <b-navbar toggleable="lg" type="dark" variant="danger">
+        <b-navbar-brand href="/" style="font-family: 'Roboto', sans-serif;"
+          >YouTube Sync</b-navbar-brand
+        >
+        <button
+          v-if="darkMode"
+          @click="swapScheme()"
+          class="ml-auto p-2 rounded focus:outline-none text-black bg-white"
+        >
+          Light Mode
+        </button>
+        <button
+          v-if="!darkMode"
+          @click="swapScheme()"
+          class="ml-auto p-2 rounded focus:outline-none text-white bg-black"
+        >
+          Dark Mode
+        </button>
+      </b-navbar>
+    </div>
     <router-view />
   </div>
 </template>
 
 <script>
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
+
+export default {
+  name: 'App',
+  data() {
+    return {
+      darkMode: false,
+    };
+  },
+  methods: {
+    swapScheme() {
+      this.darkMode = !this.darkMode;
+      localStorage.darkMode = this.darkMode;
+    },
+  },
+  created() {
+    if (localStorage.darkMode == undefined) {
+      localStorage.darkMode = false;
+    }
+  },
+};
+
 /*
 VUE_APP_LOGIN = http://ec2-54-158-184-106.compute-1.amazonaws.com:5000/auth/login
 VUE_APP_REGISTER = http://ec2-54-158-184-106.compute-1.amazonaws.com:5000/auth/register
@@ -34,6 +84,8 @@ VUE_APP_DELETE_LOBBY = http://ec2-54-158-184-106.compute-1.amazonaws.com:5000/ad
 */
 </script>
 <style>
+@import './css/tailwind.css';
+
 * {
   margin: 0px;
   padding: 0px;

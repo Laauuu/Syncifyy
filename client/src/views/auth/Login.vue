@@ -1,30 +1,43 @@
 <template>
   <div class="Login">
-    <h1 style="text-align: center; margin-top: 2em;">Login</h1>
-    <form
-      @submit.prevent="login()"
-      style="text-align: center; margin-top: 1em;"
-    >
-      <div>
-        <label for="username">Username</label><br />
-        <input v-model="username" type="text" name="username" /><br />
+    <div class="text-center text-4xl mt-5">Login</div>
+    <form @submit.prevent="login()" class="text-center">
+      <div class="mt-5">
+        <input
+          v-model="username"
+          type="text"
+          placeholder="Username"
+          autocomplete="off"
+          class="border-b focus:outline-none"
+          style="width: 18%; font-size: 18px;"
+        />
       </div>
-      <div style="margin-top: 10px;">
-        <label for="password">Password</label><br />
-        <input v-model="password" type="password" name="password" /><br />
+      <div class="mt-5">
+        <input
+          v-model="password"
+          type="password"
+          placeholder="Password"
+          autocomplete="off"
+          class="border-b focus:outline-none"
+          style="width: 18%; font-size: 18px;"
+        />
       </div>
-      <p style="color: red; margin-top: 10px;">
+      <p class="text-red-600 mt-3">
         {{ errorMessage }}
       </p>
-      <input
-        type="submit"
-        value="Login"
-        style="margin-top: 10px; padding: 3px;"
-      />
+      <div>
+        <input
+          type="submit"
+          value="Enter!"
+          class="mt-5 p-2 pl-3 pr-3 rounded hover:opacity-75 focus:outline-none"
+        />
+      </div>
     </form>
-    <div style="text-align: center; margin-top: 15px;">
-      <a href="/">Register?</a><br />
-      <div style="margin-top: 5px;">
+    <div class="text-center">
+      <div class="mt-4">
+        <a href="/register">Register?</a>
+      </div>
+      <div class="mt-3">
         <a href="/admin-login">Admin?</a>
       </div>
     </div>
@@ -40,15 +53,15 @@ const constraints = {
   username: {
     presence: true,
     length: {
-      minimum: 4,
-      message: 'must be at least 4 characters!',
+      maximum: 20,
+      message: 'Invalid username / password!',
     },
   },
   password: {
     presence: true,
     length: {
-      minimum: 6,
-      message: 'must be at least 6 characters!',
+      maximum: 30,
+      message: 'Invalid username / password!',
     },
   },
 };

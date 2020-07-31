@@ -46,7 +46,8 @@
 import Table from './Table';
 import { mapGetters, mapActions } from 'vuex';
 
-const axios = require('axios');
+import axios from 'axios';
+import validate from 'validate.js';
 
 export default {
   name: 'Lobby',
@@ -106,7 +107,7 @@ export default {
     logout() {
       // go back to login page
       localStorage.token = '';
-      this.$router.push('/login');
+      this.$router.push('/');
     },
     refresh() {
       // refresh to get new updates

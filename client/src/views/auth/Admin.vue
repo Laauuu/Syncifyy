@@ -23,7 +23,7 @@
       />
     </form>
     <div style="text-align: center; margin-top: 15px;">
-      <a href="/login">Login?</a>
+      <a href="/">Login?</a>
     </div>
   </div>
 </template>
