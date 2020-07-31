@@ -11,20 +11,23 @@
         <b-navbar-brand href="/" style="font-family: 'Roboto', sans-serif;"
           >YouTube Sync</b-navbar-brand
         >
-        <button
-          v-if="darkMode"
-          @click="swapScheme()"
-          class="ml-auto p-2 rounded focus:outline-none text-black bg-white"
-        >
-          Light Mode
-        </button>
-        <button
-          v-if="!darkMode"
-          @click="swapScheme()"
-          class="ml-auto p-2 rounded focus:outline-none text-white bg-black"
-        >
-          Dark Mode
-        </button>
+
+        <div class="ml-auto">
+          <button
+            v-if="darkMode"
+            @click="swapScheme()"
+            class="p-2 rounded focus:outline-none text-black bg-white"
+          >
+            Light Mode
+          </button>
+          <button
+            v-if="!darkMode"
+            @click="swapScheme()"
+            class="p-2 rounded focus:outline-none text-white bg-black"
+          >
+            Dark Mode
+          </button>
+        </div>
       </b-navbar>
     </div>
     <router-view />

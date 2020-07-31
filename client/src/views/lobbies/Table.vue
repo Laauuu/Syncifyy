@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table style="margin-top: 10px;">
+    <table class="mt-5">
       <thead>
         <tr>
           <th>Lobby</th>
@@ -24,6 +24,7 @@
         </tr>
       </tbody>
     </table>
+    <div></div>
     <form
       v-if="validatePassword"
       @submit.prevent="redirectIfCorrect()"
@@ -94,3 +95,12 @@ export default {
   },
 };
 </script>
+
+<style>
+table {
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+</style>

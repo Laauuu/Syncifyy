@@ -145,7 +145,7 @@ export default {
     adminLogout() {
       // log out of admin
       localStorage.token = '';
-      this.$router.push('/login');
+      this.$router.push('/');
     },
     async adminRefresh() {
       // refresh data to see any new updates

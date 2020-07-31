@@ -154,7 +154,7 @@ export default {
     },
     adminLogout() {
       localStorage.token = '';
-      this.$router.push('/login');
+      this.$router.push('/');
     },
     async adminEditLobby() {
       try {

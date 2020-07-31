@@ -1,16 +1,35 @@
 <template>
   <div>
-    <h1 style="margin-top: 20px;">Lobbies</h1>
-    <Table :lobbies="allLobbies" />
-    <button @click="create = !create" style="padding: 3px; margin-top: 10px;">
-      Create Lobby
-    </button>
-    <button @click="logout()" style="padding:3px; margin-left: 10px;">
+    <button
+      @click="logout()"
+      class="text-xl bg-gray-800 p-2 rounded-br text-white"
+    >
       Logout
     </button>
-    <button @click="refresh()" style="padding:3px; margin-left: 10px;">
-      Refresh Table
-    </button>
+    <div class="flex justify-center mt-4 items-center">
+      <div class="mr-3 text-xl">
+        <button
+          @click="refresh()"
+          class="bg-red-600 text-white p-1 rounded focus:outline-none"
+        >
+          Refresh Table
+        </button>
+      </div>
+      <div class="text-5xl">
+        Lobbies
+      </div>
+      <div class="ml-3 text-xl">
+        <button
+          @click="create = !create"
+          class="bg-red-600 text-white p-1 rounded focus:outline-none"
+        >
+          Create Lobby
+        </button>
+      </div>
+    </div>
+
+    <Table :lobbies="allLobbies" />
+
     <div v-if="create">
       <form @submit.prevent="createLobby()">
         <input
@@ -18,9 +37,8 @@
           type="text"
           placeholder="Lobby Name"
           autocomplete="off"
-          style="margin-top: 10px;"
         /><br />
-        <input v-model="isPrivate" type="checkbox" style="margin-top: 10px;" />
+        <input v-model="isPrivate" type="checkbox" />
         Private?
         <br />
         <div v-if="isPrivate">
@@ -28,17 +46,12 @@
             v-model="lobbyPassword"
             type="password"
             placeholder="Lobby Password"
-            style="margin-top: 10px;"
           /><br />
         </div>
-        <input
-          type="submit"
-          value="Create"
-          style="margin-top: 10px; padding: 3px;"
-        />
+        <input type="submit" value="Create" />
       </form>
     </div>
-    <p style="margin-top: 10px; color: red;">{{ errorMessage }}</p>
+    <p>{{ errorMessage }}</p>
   </div>
 </template>
 
@@ -116,19 +129,3 @@ export default {
   },
 };
 </script>
-
-<style>
-table {
-  border-collapse: collapse;
-}
-
-td,
-th {
-  padding: 0.5rem;
-  text-align: left;
-}
-
-tr {
-  border: 1px solid black;
-}
-</style>
