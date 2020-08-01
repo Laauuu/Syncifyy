@@ -82,4 +82,10 @@ router.get('/check-connections/:lobbyId', async (req, res) => {
   res.json(lobby.connections);
 });
 
+// GET /lobbies/user
+router.get('/user', (req, res) => {
+  res.status(200);
+  res.json(req.user.username);
+});
+
 module.exports = router;

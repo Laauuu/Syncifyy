@@ -15,23 +15,6 @@
         <b-navbar-brand href="/" style="font-family: 'Roboto', sans-serif;"
           >YouTube Sync</b-navbar-brand
         >
-
-        <div class="ml-auto">
-          <button
-            v-if="darkMode"
-            @click="swapScheme()"
-            class="p-2 rounded focus:outline-none text-black bg-white"
-          >
-            Light Mode
-          </button>
-          <button
-            v-if="!darkMode"
-            @click="swapScheme()"
-            class="p-2 rounded focus:outline-none text-white bg-black"
-          >
-            Dark Mode
-          </button>
-        </div>
       </b-navbar>
     </div>
     <router-view />
@@ -44,22 +27,6 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 export default {
   name: 'App',
-  data() {
-    return {
-      darkMode: false,
-    };
-  },
-  methods: {
-    swapScheme() {
-      this.darkMode = !this.darkMode;
-      localStorage.darkMode = this.darkMode;
-    },
-  },
-  created() {
-    if (localStorage.darkMode == undefined) {
-      localStorage.darkMode = false;
-    }
-  },
 };
 
 /*

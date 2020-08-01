@@ -1,45 +1,94 @@
 <template>
   <div>
-    <h1 style="text-align: center; margin-top: 20px; margin-bottom: 20px;">
-      {{ lobbyTitle
-      }}<button @click="leaveLobby()" style="margin-left: 10px; padding: 3px;">
-        Leave Lobby
+    <div class="flex justify-center mt-3 mb-3">
+      <button
+        class="mr-3 text-red-600 focus:outline-none"
+        @click="leaveLobby()"
+      >
+        <i class="fa fa-arrow-circle-left" style="font-size:26px;"></i>
       </button>
-    </h1>
-    <div style="margin: 0 auto; width: fit-content;">
-      <youtube
-        :video-id="videoId"
-        :playerVars="playerVars"
-        @ready="ready"
-        @ended="ended"
-        ref="youtube"
-        style="pointer-events: none;"
-      ></youtube>
-      <br />
-      <button @click="playVideo" style="margin-top: 10px;">Play</button>
-      <button @click="pauseVideo" style="margin-top: 10px; margin-left: 10px;">
-        Pause
+      <p class="text-4xl">{{ lobbyTitle }}</p>
+      <button
+        v-if="!darkMode"
+        @click="darkMode = true"
+        class="ml-3 text-black focus:outline-none"
+      >
+        <i class="fa fa-moon-o" style="font-size:26px;"></i>
       </button>
-      <div @click="findCursorTime($event)" class="timeline" ref="timeline">
-        <div
-          v-bind:style="{ width: videoPercentage + '%' }"
-          class="timeline-positiion"
-        ></div>
+      <button
+        v-if="darkMode"
+        @click="darkMode = false"
+        class="ml-3 text-yellow-500 focus:outline-none"
+      >
+        <i class="fa fa-sun-o" style="font-size:26px;"></i>
+      </button>
+    </div>
+    <div>
+      <div class="flex justify-center">
+        <youtube
+          v-if="!fullScreen"
+          :video-id="videoId"
+          :playerVars="playerVars"
+          @ready="ready"
+          @ended="ended"
+          ref="youtube"
+          style="pointer-events: none;"
+        ></youtube>
+        <youtube
+          v-if="fullScreen"
+          :video-id="videoId"
+          :playerVars="playerVars"
+          :width="frameWidth"
+          :height="frameHeight"
+          @ready="ready"
+          @ended="ended"
+          ref="youtube"
+          style="pointer-events: none;"
+        ></youtube>
       </div>
-      <form @submit.prevent="switchVideo()" style="margin-top: 40px;">
+      <div class="flex items-center justify-center mt-4">
+        <button
+          @click="playVideo"
+          class="p-1 pl-2 pr-2 border-black rounded bg-red-600 focus:outline-none hover:bg-red-500 text-white"
+          style="border: 1.5px solid black;"
+        >
+          <i class="fa fa-play" style="font-size: 20px;"></i>
+        </button>
+        <button
+          @click="pauseVideo"
+          class="p-1 pl-2 pr-2 border-black rounded bg-red-600 focus:outline-none hover:bg-red-500 text-white ml-2"
+          style="border: 1.5px solid black;"
+        >
+          <i class="fa fa-pause"></i>
+        </button>
+        <div class="timeline">
+          <div class="timeline-cursor"></div>
+        </div>
+        <button
+          @click="fullScreen = !fullScreen"
+          class="ml-2 p-1 pl-2 pr-2 border-black rounded bg-red-600 focus:outline-none hover:bg-red-500 text-white"
+          style="border: 1.5px solid black;"
+        >
+          <i class="fa fa-expand" style="font-size:20px;"></i>
+        </button>
+      </div>
+
+      <form @submit.prevent="switchVideo()" class="mt-2 text-center">
         <input
           v-model="newVideoURL"
           type="text"
-          style="width: 50%; padding: 2px;"
+          style="width: 20%;"
+          class="focus:outline-none border-b"
           placeholder="Insert Youtube URL"
         />
         <input
           type="submit"
           value="Play Video"
-          style="margin-left: 10px; padding: 2px;"
+          class="ml-3 p-1 rounded bg-red-600 text-white focus:outline-none hover:bg-red-500"
+          style="border: 1.5px solid black;"
         />
       </form>
-      <p style="margin-top: 10px; color: red;">{{ errorMessage }}</p>
+      <p class="text-red-600 text-center">{{ errorMessage }}</p>
     </div>
   </div>
 </template>
@@ -56,6 +105,9 @@ export default {
       currentLobbyId: null,
       videoId: '',
       newVideoURL: null,
+      fullScreen: false,
+      frameHeight: 0,
+      frameWidth: 0,
       playerVars: {
         controls: 0,
         disablekb: 1,
@@ -64,6 +116,7 @@ export default {
       },
       videoLength: 0,
       videoPercentage: 0,
+      darkMode: false,
       errorMessage: '',
       socket: io('localhost:5001'), // listening on http://ec2-54-158-184-106.compute-1.amazonaws.com:5000
     };
@@ -113,14 +166,9 @@ export default {
       }
     },
     findCursorTime: function(e) {
-      let click =
-        ((e.clientX - this.$refs.timeline.getBoundingClientRect().left) / 400) *
-        100; // get the position of where the mouse clicked in the div
-      let newVideoPercentage = click / 160; // find the percentage of where it was clicked
-      let newPositionInTimeline = newVideoPercentage * 100; // get the percentage
+      // EDIT EDIT EDIT
       this.socket.emit('seek-to', {
-        // emit the percentage of where it was clicked to all clients (in lobby)
-        newPositionInTimeline,
+        newPositionInTimeline: 50, // change
         currentLobbyId: this.currentLobbyId,
       });
     },
@@ -197,6 +245,9 @@ export default {
       { lobbyId: currRouteId },
       { headers: { authorization: localStorage.token } }
     );
+
+    this.frameHeight = screen.height - 350;
+    this.frameWidth = screen.width - 200;
   },
   mounted() {
     this.socket.on('play', async (clientsLobbyId) => {
@@ -252,15 +303,36 @@ export default {
 
 <style>
 .timeline {
-  position: relative;
-  margin-top: 20px;
   height: 10px;
-  background-color: gray;
-  border: 1px solid red;
+  width: 40%;
+  margin-left: 10px;
+  background-color: rgb(240, 240, 240);
 }
 
-.timeline-positiion {
+.timeline-cursor {
+  background-color: red;
+  width: 0%;
   height: 10px;
-  background-color: yellow;
+  border-right: 2px solid;
 }
+
+/*
+let widthOfDiv = this.$refs.timeline.offsetWidth;
+      console.log(this.$refs.timeline.getBoundingClientRect());
+      let click =
+        ((e.clientX - ) / 400) *
+        100; // get the position of where the mouse clicked in the div
+      let newVideoPercentage = click / 160; // find the percentage of where it was clicked
+      let newPositionInTimeline = newVideoPercentage * 100; // get the percentage
+      */
+/*
+
+<div @click="findCursorTime($event)" class="timeline" ref="timeline">
+        <div
+          v-bind:style="{ width: videoPercentage + '%' }"
+          class="timeline-positiion"
+        ></div>
+      </div>
+
+*/
 </style>

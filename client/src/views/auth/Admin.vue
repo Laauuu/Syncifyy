@@ -1,29 +1,43 @@
 <template>
   <div>
-    <h1 style="text-align: center; margin-top: 2em;">Admin Login</h1>
-    <form
-      @submit.prevent="adminLogin()"
-      style="text-align: center; margin-top: 1em;"
-    >
-      <div>
-        <label for="username">Username</label><br />
-        <input v-model="username" type="text" name="username" /><br />
+    <h1 class="text-center text-4xl mt-5">Admin Login</h1>
+    <form v-if="!loading" @submit.prevent="adminLogin()" class="text-center">
+      <div class="mt-5">
+        <input
+          v-model="username"
+          type="text"
+          class="border-b focus:outline-none"
+          style="width: 18%; font-size: 18px;"
+          placeholder="Username"
+        /><br />
       </div>
-      <div style="margin-top: 10px;">
-        <label for="password">Password</label><br />
-        <input v-model="password" type="password" name="password" /><br />
+      <div class="mt-5">
+        <input
+          v-model="password"
+          type="password"
+          class="border-b focus:outline-none"
+          style="width: 18%; font-size: 18px;"
+          placeholder="Password"
+        /><br />
       </div>
-      <p style="color: red; margin-top: 10px;">
+      <p class="text-red-600 mt-3">
         {{ errorMessage }}
       </p>
       <input
         type="submit"
         value="Login"
-        style="margin-top: 10px; padding: 3px;"
+        class="mt-5 p-2 pl-3 pr-3 rounded hover:opacity-75 focus:outline-none"
       />
     </form>
-    <div style="text-align: center; margin-top: 15px;">
-      <a href="/">Login?</a>
+    <img
+      v-if="loading"
+      src="../../../public/loadingAnimation.svg"
+      alt=""
+      class="loading"
+      style="margin-top: 4em;"
+    />
+    <div v-if="!loading" class="text-center mt-4">
+      <a href="/">User Login?</a>
     </div>
   </div>
 </template>
@@ -36,20 +50,25 @@ export default {
       errorMessage: '',
       username: '',
       password: '',
+      loading: false,
     };
   },
   methods: {
     adminLogin() {
+      this.loading = true;
       if (this.username == process.env.VUE_APP_ADMIN_USERNAME) {
         // if username == to admin username
         if (this.password == process.env.VUE_APP_ADMIN_PASSWORD) {
           // if password == to admin password
           localStorage.token = process.env.VUE_APP_ADMIN_TOKEN; // assign the admin token
           this.$router.push('/admin-dashboard'); // push to admin dashboard
+          this.loading = false;
         } else {
+          this.loading = false;
           this.errorMessage = 'Username / Password is invalid.'; // wrong credentials
         }
       } else {
+        this.loading = false;
         this.errorMessage = 'Username / Password is invalid.'; // wrong credentials
       }
     },

@@ -3,7 +3,7 @@
     <div class="flex">
       <button
         @click="logout()"
-        class="text-xl bg-blue-600 p-2 rounded-b text-white focus:outline-none hover:bg-blue-500"
+        class="text-xl bg-blue-600 p-2 rounded-br text-white focus:outline-none hover:bg-blue-500"
       >
         Logout
       </button>
@@ -12,7 +12,11 @@
       >
         Account Settings (Coming Soon)
       </button>
+      <div class="ml-auto bg-green-600 rounded-bl">
+        <p class="text-xl text-white p-2">Welcome back, {{ username }}!</p>
+      </div>
     </div>
+
     <div class="flex justify-center mt-4 items-center">
       <div class="mr-3 text-xl">
         <button
@@ -113,6 +117,7 @@ export default {
   },
   data() {
     return {
+      username: '',
       create: false,
       lobbyName: '',
       isPrivate: false,
@@ -126,6 +131,7 @@ export default {
   },
   created() {
     const API_URL = process.env.VUE_APP_USER_LOBBY;
+    const S_API_URL = 'http://127.0.0.1:5001/lobbies/user';
     this.loading = true;
 
     axios // this AJAX request just makes sure that the user isn't already in a lobby and if so redirect user to lobby
@@ -139,6 +145,16 @@ export default {
       .catch((error) => {
         this.loading = false;
         this.errorMessage = error.response.data;
+      });
+
+    axios
+      .get(S_API_URL, {
+        headers: {
+          authorization: localStorage.token,
+        },
+      })
+      .then((username) => {
+        this.username = username.data;
       });
 
     this.fetchLobbies().then(() => {
