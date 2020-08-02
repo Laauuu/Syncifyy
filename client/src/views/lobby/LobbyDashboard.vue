@@ -3,7 +3,7 @@
     class="ml-3 rounded"
     :style="{
       width: '35' + '%',
-      'margin-top': '4' + 'em',
+      'margin-top': '6' + 'em',
       height: dashboardHeight + 'px',
       border: '3px solid',
       'border-color': '#e53e3e',

@@ -312,7 +312,8 @@ export default {
       }
     });
 
-    this.darkModeHeight = this.$refs.leftover.getBoundingClientRect().top / 2;
+    this.darkModeHeight =
+      this.$refs.leftover.getBoundingClientRect().top / 2 - 56;
   },
 };
 </script>
