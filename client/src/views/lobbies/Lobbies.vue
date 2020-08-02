@@ -10,10 +10,18 @@
       <button
         class="text-xl bg-blue-600 p-2 rounded-b text-white ml-3 focus:outline-none hover:bg-blue-500"
       >
-        Account Settings (Coming Soon)
+        Account Settings (Coming Soon!)
       </button>
-      <div class="ml-auto bg-green-600 rounded-bl">
-        <p class="text-xl text-white p-2">Welcome back, {{ username }}!</p>
+
+      <div class="ml-auto flex">
+        <button
+          class="text-xl text-white p-2 bg-green-600 rounded-b mr-3 hover:bg-green-500 focus:outline-none"
+        >
+          Chat (Coming Soon!)
+        </button>
+        <p class="text-xl text-white p-2 bg-green-600 rounded-bl">
+          Welcome back, {{ username }}!
+        </p>
       </div>
     </div>
 
@@ -168,6 +176,7 @@ export default {
     async createLobby() {
       // take user input and insert new lobby in database
       const API_URL = process.env.VUE_APP_NEW_LOBBY;
+
       const body = {
         lobbyName: this.lobbyName,
         isPrivate: this.isPrivate,

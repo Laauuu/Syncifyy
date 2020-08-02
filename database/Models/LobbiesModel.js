@@ -17,6 +17,10 @@ const Lobbies = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     private: {
       type: sequelize.literal('BOOLEAN'),
       defaultValue: false,

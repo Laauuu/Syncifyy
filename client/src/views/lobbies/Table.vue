@@ -59,7 +59,7 @@
         <input
           type="password"
           v-model="passwordInput"
-          placeholder="Insert Password"
+          placeholder="Enter Password"
           class="border-b focus:outline-none mt-4"
           style="width: 18%; font-size: 18px;"
         /><br />
@@ -118,7 +118,7 @@ export default {
       // if the password inserted was correct..
       if (this.passwordInput == this.password) {
         this.errorMessage = '';
-        if (await this.checkConnections(lobbyId)) {
+        if (await this.checkConnections(this.lobbyId)) {
           this.$router.push(`/lobbies/${this.lobbyId}`); // send to lobby
         } else {
           this.errorMessage = 'Lobby is Full!';

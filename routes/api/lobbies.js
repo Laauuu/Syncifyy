@@ -34,28 +34,22 @@ router.post('/create-lobby', async (req, res) => {
   } else {
     const lobby = await Lobbies.findOne({ where: { title } }); // query database for a lobby with the same name
     if (!lobby) {
-      // if there is no lobby with the same name
       if (private) {
-        // if it was private
-        Lobbies.create({
-          // insert in database
-          title,
+        const newLobby = await Lobbies.create({
           owner,
+          title,
           password,
           private,
         });
         res.status(200);
-        res.end();
       } else {
-        // if it wasn't private
-        Lobbies.create({
-          // just insert the owner and title in the database
-          title,
+        const newLobby = await Lobbies.create({
           owner,
+          title,
         });
-        res.status(200); // return status code 200 OK
-        res.end(); // end
+        res.status(200);
       }
+      res.end();
     } else {
       // lobby with the same name was found
       helper.httpError409(res, 'Lobby already exists!'); // send according error message back to client

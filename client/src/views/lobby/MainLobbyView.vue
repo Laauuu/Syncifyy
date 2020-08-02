@@ -1,13 +1,20 @@
 <template>
-  <div>
-    <div class="flex justify-center mt-3 mb-3">
+  <div
+    v-bind:class="{ displayDark: darkMode }"
+    :style="{ height: windowHeight - 56 + 'px' }"
+  >
+    <div class="flex justify-center pt-3 mb-3">
       <button
         class="mr-3 text-red-600 focus:outline-none"
         @click="leaveLobby()"
       >
         <i class="fa fa-arrow-circle-left" style="font-size:26px;"></i>
       </button>
-      <p class="text-4xl">{{ lobbyTitle }}</p>
+
+      <p v-bind:class="{ titleDark: darkMode }" style="font-size: 2.25rem;">
+        {{ lobbyTitle }}
+      </p>
+
       <button
         v-if="!darkMode"
         @click="darkMode = true"
@@ -29,7 +36,6 @@
           v-if="!fullScreen"
           :video-id="videoId"
           :playerVars="playerVars"
-          @ready="ready"
           @ended="ended"
           ref="youtube"
           style="pointer-events: none;"
@@ -40,7 +46,6 @@
           :playerVars="playerVars"
           :width="frameWidth"
           :height="frameHeight"
-          @ready="ready"
           @ended="ended"
           ref="youtube"
           style="pointer-events: none;"
@@ -50,24 +55,27 @@
         <button
           @click="playVideo"
           class="p-1 pl-2 pr-2 border-black rounded bg-red-600 focus:outline-none hover:bg-red-500 text-white"
-          style="border: 1.5px solid black;"
+          style="border: 1.5px solid gray;"
         >
           <i class="fa fa-play" style="font-size: 20px;"></i>
         </button>
         <button
           @click="pauseVideo"
           class="p-1 pl-2 pr-2 border-black rounded bg-red-600 focus:outline-none hover:bg-red-500 text-white ml-2"
-          style="border: 1.5px solid black;"
+          style="border: 1.5px solid gray;"
         >
           <i class="fa fa-pause"></i>
         </button>
-        <div class="timeline">
-          <div class="timeline-cursor"></div>
+        <div @click="findCursorTime($event)" class="timeline" ref="timeline">
+          <div
+            class="timeline-cursor"
+            v-bind:style="{ width: videoPercentage + '%' }"
+          ></div>
         </div>
         <button
           @click="fullScreen = !fullScreen"
           class="ml-2 p-1 pl-2 pr-2 border-black rounded bg-red-600 focus:outline-none hover:bg-red-500 text-white"
-          style="border: 1.5px solid black;"
+          style="border: 1.5px solid gray;"
         >
           <i class="fa fa-expand" style="font-size:20px;"></i>
         </button>
@@ -78,18 +86,20 @@
           v-model="newVideoURL"
           type="text"
           style="width: 20%;"
-          class="focus:outline-none border-b"
+          class="focus:outline-none border-b bg-transparent"
           placeholder="Insert Youtube URL"
         />
         <input
           type="submit"
-          value="Play Video"
+          value="Change Video"
           class="ml-3 p-1 rounded bg-red-600 text-white focus:outline-none hover:bg-red-500"
-          style="border: 1.5px solid black;"
+          style="border: 1.5px solid gray;"
         />
       </form>
-      <p class="text-red-600 text-center">{{ errorMessage }}</p>
+      <p class="text-red-600 text-center mt-2">{{ errorMessage }}</p>
     </div>
+
+    <LobbyDashboard :darkMode="darkMode" />
   </div>
 </template>
 
@@ -97,8 +107,13 @@
 import io from 'socket.io-client';
 import axios from 'axios';
 
+import LobbyDashboard from './LobbyDashboard';
+
 export default {
   name: 'MainLobbyView',
+  components: {
+    LobbyDashboard,
+  },
   data() {
     return {
       lobbyTitle: '',
@@ -117,6 +132,7 @@ export default {
       videoLength: 0,
       videoPercentage: 0,
       darkMode: false,
+      pageHeight: 0,
       errorMessage: '',
       socket: io('localhost:5001'), // listening on http://ec2-54-158-184-106.compute-1.amazonaws.com:5000
     };
@@ -127,10 +143,6 @@ export default {
     },
   },
   methods: {
-    async ready() {
-      // when the video is loaded up
-      this.videoLength = await this.player.getDuration(); // find the length of the video
-    },
     async ended() {
       // when the video ends...
       clearInterval(this.interval); // stop the interval
@@ -166,9 +178,14 @@ export default {
       }
     },
     findCursorTime: function(e) {
-      // EDIT EDIT EDIT
+      let timeline = this.$refs.timeline.getBoundingClientRect();
+      let timelineLen = timeline.width;
+      let cursorPos = e.clientX - timeline.left;
+
+      let cursorPercentage = (cursorPos / timelineLen) * 100;
+
       this.socket.emit('seek-to', {
-        newPositionInTimeline: 50, // change
+        newPositionInTimeline: Math.round(cursorPercentage), // change
         currentLobbyId: this.currentLobbyId,
       });
     },
@@ -246,39 +263,32 @@ export default {
       { headers: { authorization: localStorage.token } }
     );
 
-    this.frameHeight = screen.height - 350;
-    this.frameWidth = screen.width - 200;
+    this.frameHeight = screen.height - 360;
+    this.frameWidth = screen.width - 100;
   },
   mounted() {
     this.socket.on('play', async (clientsLobbyId) => {
-      // on play
       let isValidRequest = await this.inLobby(clientsLobbyId);
+
       if (isValidRequest) {
-        // if it was from a client in the same lobby
         this.interval = setInterval(async () => {
-          // start interval
           this.videoLength = await this.player.getDuration();
           let currentTimestamp = await this.player.getCurrentTime();
           let percentage = (currentTimestamp / this.videoLength) * 100;
-          if (percentage >= 100) {
-            this.videoPercentage = 100;
-          } else {
-            this.videoPercentage = percentage;
-          }
+          this.videoPercentage = percentage;
         }, 10);
-        this.player.playVideo(); // play video to all clients
+        this.player.playVideo();
       }
     });
     this.socket.on('seeking', async (data) => {
-      // on seek
-      let currentLobbyId = data.currentLobbyId;
-      let isValidRequest = await this.inLobby(currentLobbyId);
+      let isValidRequest = await this.inLobby(data.currentLobbyId);
+
       if (isValidRequest) {
-        // if it was a client in lobby
+        this.player.playVideo();
         this.videoPercentage = data.newPositionInTimeline;
         let newVideoTime = (this.videoPercentage / 100) * this.videoLength;
-        await this.player.seekTo(newVideoTime); // seek to for all clients
-        this.socket.emit('playing', currentLobbyId);
+        await this.player.seekTo(newVideoTime);
+        this.socket.emit('playing', data.currentLobbyId);
       }
     });
     this.socket.on('reload', async (clientsLobbyId) => {
@@ -307,32 +317,32 @@ export default {
   width: 40%;
   margin-left: 10px;
   background-color: rgb(240, 240, 240);
+  cursor: pointer;
 }
 
 .timeline-cursor {
   background-color: red;
-  width: 0%;
   height: 10px;
   border-right: 2px solid;
 }
 
-/*
-let widthOfDiv = this.$refs.timeline.offsetWidth;
-      console.log(this.$refs.timeline.getBoundingClientRect());
-      let click =
-        ((e.clientX - ) / 400) *
-        100; // get the position of where the mouse clicked in the div
-      let newVideoPercentage = click / 160; // find the percentage of where it was clicked
-      let newPositionInTimeline = newVideoPercentage * 100; // get the percentage
-      */
-/*
+.displayDark {
+  background-color: rgb(15, 15, 15);
+}
 
-<div @click="findCursorTime($event)" class="timeline" ref="timeline">
-        <div
-          v-bind:style="{ width: videoPercentage + '%' }"
-          class="timeline-positiion"
-        ></div>
-      </div>
+.titleDark {
+  color: white;
+}
 
-*/
+.fa-arrow-circle-left {
+  background-image: radial-gradient(at center, white 50%, transparent 40%);
+}
+
+.fa-sun-o {
+  background-image: radial-gradient(
+    at center,
+    rgb(255, 253, 253) 50%,
+    transparent 40%
+  );
+}
 </style>
