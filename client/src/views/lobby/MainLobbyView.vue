@@ -263,7 +263,7 @@ export default {
       { headers: { authorization: localStorage.token } }
     );
 
-    this.frameHeight = screen.height - 360;
+    this.frameHeight = screen.height - 400;
     this.frameWidth = screen.width - 100;
   },
   mounted() {
