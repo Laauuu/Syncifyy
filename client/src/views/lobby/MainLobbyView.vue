@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-bind:class="{ displayDark: darkMode }"
-    :style="{ height: windowHeight - 56 + 'px' }"
-  >
+  <div v-bind:class="{ displayDark: darkMode }" :style="{ height: 100 + '%' }">
     <div class="flex justify-center pt-3 mb-3">
       <button
         class="mr-3 text-red-600 focus:outline-none"
@@ -99,7 +96,10 @@
       <p class="text-red-600 text-center mt-2">{{ errorMessage }}</p>
     </div>
 
-    <LobbyDashboard :darkMode="darkMode" />
+    <div v-if="!fullScreen" ref="dashboard">
+      <LobbyDashboard :darkMode="darkMode" :dashboardHeight="dashboardHeight" />
+    </div>
+    <div :style="{ height: darkModeHeight + 'px' }" ref="leftover"></div>
   </div>
 </template>
 
@@ -131,8 +131,9 @@ export default {
       },
       videoLength: 0,
       videoPercentage: 0,
+      dashboardHeight: 0,
       darkMode: false,
-      pageHeight: 0,
+      darkModeHeight: 0,
       errorMessage: '',
       socket: io('localhost:5001'), // listening on http://ec2-54-158-184-106.compute-1.amazonaws.com:5000
     };
@@ -218,6 +219,7 @@ export default {
       return false;
     },
   },
+
   created() {
     const API_URL = process.env.VUE_APP_ALL_LOBBIES;
     const S_API_URL = process.env.VUE_APP_ASSIGN_LOBBY;
@@ -267,6 +269,8 @@ export default {
     this.frameWidth = screen.width - 100;
   },
   mounted() {
+    this.dashboardHeight = this.$refs.dashboard.getBoundingClientRect().top;
+
     this.socket.on('play', async (clientsLobbyId) => {
       let isValidRequest = await this.inLobby(clientsLobbyId);
 
@@ -307,6 +311,8 @@ export default {
         this.player.pauseVideo(); // pause
       }
     });
+
+    this.darkModeHeight = this.$refs.leftover.getBoundingClientRect().top / 2;
   },
 };
 </script>

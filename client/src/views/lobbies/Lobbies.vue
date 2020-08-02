@@ -17,7 +17,7 @@
         <button
           class="text-xl text-white p-2 bg-green-600 rounded-b mr-3 hover:bg-green-500 focus:outline-none"
         >
-          Chat (Coming Soon!)
+          Global Chat (Coming Soon!)
         </button>
         <p class="text-xl text-white p-2 bg-green-600 rounded-bl">
           Welcome back, {{ username }}!

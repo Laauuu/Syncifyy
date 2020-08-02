@@ -65,6 +65,11 @@ VUE_APP_DELETE_LOBBY = http://ec2-54-158-184-106.compute-1.amazonaws.com:5000/ad
   padding: 0px;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 .loading {
   width: 5em;
   margin: 0 auto;
