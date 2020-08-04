@@ -13,7 +13,6 @@
           <th>Lobby</th>
           <th>Owner</th>
           <th>Status</th>
-          <th>Connected</th>
         </tr>
       </thead>
       <tbody>
@@ -31,7 +30,6 @@
           <td v-if="page.private == 0">
             <i class="fa fa-unlock-alt" style="font-size:24px"></i>
           </td>
-          <td>{{ page.connections }} / 20</td>
         </tr>
       </tbody>
     </table>
@@ -107,22 +105,14 @@ export default {
       } else {
         this.password = '';
         this.validatePassword = false;
-        if (await this.checkConnections(lobbyId)) {
-          this.$router.push(`/lobbies/${lobbyId}`);
-        } else {
-          this.errorMessage = 'Lobby is Full!';
-        }
+        this.$router.push(`/lobbies/${lobbyId}`);
       }
     },
     async redirectIfCorrect() {
       // if the password inserted was correct..
       if (this.passwordInput == this.password) {
         this.errorMessage = '';
-        if (await this.checkConnections(this.lobbyId)) {
-          this.$router.push(`/lobbies/${this.lobbyId}`); // send to lobby
-        } else {
-          this.errorMessage = 'Lobby is Full!';
-        }
+        this.$router.push(`/lobbies/${this.lobbyId}`); // send to lobby
       } else {
         this.errorMessage = 'Invalid Password!'; // invalid password
       }
@@ -150,18 +140,6 @@ export default {
       } else {
         this.currentPage = newPage;
       }
-    },
-    async checkConnections(lobby_id) {
-      const API_URL =
-        'http://127.0.0.1:5001/lobbies/check-connections/' + lobby_id;
-      const connections = await axios.get(API_URL, {
-        headers: { authorization: localStorage.token },
-      });
-
-      if (connections.data >= 20) {
-        return false;
-      }
-      return true;
     },
   },
 };

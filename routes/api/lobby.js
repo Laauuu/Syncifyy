@@ -11,10 +11,23 @@ const Lobbies = require('../../database/Models/LobbiesModel');
 // GET /lobby/user-lobby
 router.get('/user-lobby', async (req, res) => {
   const userId = req.user.id; // the user sending the request
+  const user = await Users.findOne({ where: { id: userId } });
+  res.status(200);
+  res.json(user);
+});
 
-  const user = await Users.findOne({ id: userId }); // find that user in the database
-  res.status(200); // return status code 200 OK
-  res.json(user.lobby); // send the client the lobby that the user is in
+router.get('/new-connection', async (req, res) => {
+  const userId = req.user.id;
+  const user = await Users.findOne({ id: userId });
+  if (user.lobby == '') {
+    res.json({
+      addConnection: true,
+    });
+  } else {
+    res.json({
+      addConnection: false,
+    });
+  }
 });
 
 // PUT /lobby/assign-lobby
@@ -54,6 +67,33 @@ router.post('/currently-watching', async (req, res) => {
   const lobby = await Lobbies.findOne({ where: { uuid: lobbyId } }); // query database for the current lobby
   res.status(200); // return status code 200 OK
   res.json(lobby.youtubeId); // send the client the id of the video being watched
+});
+
+// POST /lobby/check-permissions
+router.post('/check-permissions', async (req, res) => {
+  const owner = req.user.username;
+  const lobbyId = req.body.lobbyId;
+
+  const lobby = await Lobbies.findOne({ where: { uuid: lobbyId, owner } });
+  res.status(200);
+
+  if (lobby) {
+    res.json({
+      permission: true,
+    });
+  } else {
+    res.json({
+      permission: false,
+    });
+  }
+});
+
+// PUT /lobby/users-connected
+router.put('/users-connected', async (req, res) => {
+  const lobbyId = req.body.lobbyId;
+  const lobby = await Lobbies.findOne({ where: { uuid: lobbyId } });
+  res.status(200);
+  res.json(lobby.connections);
 });
 
 // PUT /lobby/leave-lobby

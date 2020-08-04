@@ -11,6 +11,8 @@ import AdminDashboardLobbies from '../views/admin/AdminDashboardLobbies.vue';
 import Lobbies from '../views/lobbies/Lobbies.vue';
 import Lobby from '../views/lobby/MainLobbyView.vue';
 
+import ReportIssue from '../views/ReportIssue.vue';
+
 Vue.use(VueRouter);
 
 const routes = [
@@ -46,7 +48,19 @@ const routes = [
       if (localStorage.token) {
         next();
       } else {
-        next('/login');
+        next('/');
+      }
+    },
+  },
+  {
+    path: '/report-issue',
+    name: 'ReportIssue',
+    component: ReportIssue,
+    beforeEnter: (to, from, next) => {
+      if (localStorage.token) {
+        next();
+      } else {
+        next('/');
       }
     },
   },

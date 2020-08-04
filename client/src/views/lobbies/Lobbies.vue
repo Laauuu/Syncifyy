@@ -94,6 +94,10 @@
           class="mt-5 p-2 pl-3 pr-3 rounded focus:outline-none hover:opacity-75 ml-5"
         />
       </form>
+      <p class="mt-3 text-red-600">
+        *I recommend making your lobby private to prevent any trolls until I add
+        in management features*
+      </p>
     </div>
     <div class="text-center">
       <p class="mt-5">Build v0.1</p>
@@ -101,11 +105,17 @@
         This is still in development so if you come across any bugs please
       </p>
       <p>
-        report them, all feedback helps! Join the discord as well to suggest new
+        report them, all feedback helps! Join the discord as well to connect,
       </p>
-      <p class="mb-3">features and stay up-to-date!</p>
-      <a href="https://discord.gg/tBFcVsx">https://discord.gg/tBFcVsx</a><br />
-      <div class="mt-2">Find Bugs? - <a href="#">Report an Issue</a> 🦠</div>
+      <p class="mb-3">and stay up-to-date!</p>
+
+      <a href="https://discord.gg/tBFcVsx" target="_blank"
+        >https://discord.gg/tBFcVsx</a
+      >
+      🎉<br />
+      <div class="mt-2">
+        Find Bugs? - <a href="/report-issue">Report an Issue</a> 🦠
+      </div>
     </div>
     <p class="text-center text-red-600">{{ errorMessage }}</p>
   </div>
@@ -142,11 +152,11 @@ export default {
     const S_API_URL = 'http://127.0.0.1:5001/lobbies/user';
     this.loading = true;
 
-    axios // this AJAX request just makes sure that the user isn't already in a lobby and if so redirect user to lobby
+    axios
       .get(API_URL, { headers: { authorization: localStorage.token } })
-      .then((lobby) => {
-        if (lobby.data != null) {
-          this.$router.push(`/lobbies/${lobby.data}`);
+      .then((response) => {
+        if (response.data.lobby != '') {
+          this.$router.push(`/lobbies/${response.data.lobby}`);
           this.loading = false;
         }
       })

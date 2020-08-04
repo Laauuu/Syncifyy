@@ -1,81 +1,66 @@
 <template>
-  <div
-    class="ml-3 rounded"
-    :style="{
-      width: '35' + '%',
-      'margin-top': '6' + 'em',
-      height: dashboardHeight + 'px',
-      border: '3px solid',
-      'border-color': '#e53e3e',
-    }"
-  >
-    <div :class="darkMode ? 'displayDarkHeader' : 'displayLightHeader'">
-      <button
-        @click="changeChannel('chat')"
-        class="bg-blue-600 text-white p-1 rounded-b focus:outline-none hover:bg-blue-500"
-      >
-        Lobby Chat
-      </button>
-
-      <p
-        class="bg-green-600 text-white p-1 rounded-b focus:outline-none"
-        style="float: right;"
-      >
-        Watching 0/20
-      </p>
-    </div>
+  <div>
     <div
-      :class="darkMode ? 'displayDarkText' : 'displayLightText'"
-      style="border-bottom: 1.5px solid;"
-    ></div>
+      class="text-center"
+      :style="{
+        color: darkMode ? 'white' : 'black',
+      }"
+    >
+      <p class="text-4xl pt-4">Lobby Settings</p>
+      <div v-if="!permissionToEdit" class="text-2xl mb-4 mt-4">
+        You do not have permission to edit this lobby!
+      </div>
+      <div v-if="permissionToEdit" class="text-2xl mb-4 mt-4">
+        <button
+          class="bg-green-600 p-1 text-white focus:outline-none rounded hover:bg-green-500"
+          style="border: 1.5px solid gray;"
+        >
+          Change Lobby Name</button
+        ><br />
+        <button
+          class="mt-3 bg-green-600 p-1 text-white focus:outline-none rounded hover:bg-green-500"
+          style="border: 1.5px solid gray;"
+        >
+          Change Lobby Status</button
+        ><br />
+        <button
+          class="mt-3 bg-blue-600 p-1 text-white focus:outline-none rounded hover:bg-blue-500"
+          style="border: 1.5px solid gray;"
+        >
+          Kick User</button
+        ><br />
+        <button
+          class="mt-3 bg-blue-600 p-1 text-white focus:outline-none rounded hover:bg-blue-500"
+          style="border: 1.5px solid gray;"
+        >
+          Ban User (coming soon!)</button
+        ><br />
+        <button
+          class="mt-5 bg-red-700 text-white p-1 rounded focus:outline-none hover:bg-red-600"
+          style="border: 1.5px solid gray;"
+        >
+          Remove Lobby
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import Chat from './lobbyDashboardViews/Chat';
-import UsersConnected from './lobbyDashboardViews/UsersConnected';
+import axios from 'axios';
 
 export default {
   name: 'LobbyDashboard',
   props: {
     darkMode: Boolean,
-    dashboardHeight: Number,
-  },
-  components: {
-    Chat,
-    UsersConnected,
+    currentLobbyId: String,
   },
   data() {
     return {
-      lobbyChat: true,
+      permissionToEdit: false,
     };
-  },
-  methods: {
-    changeChannel(channel) {
-      if (channel == 'chat') {
-        this.lobbyChat = true;
-      }
-    },
   },
 };
 </script>
 
-<style>
-.displayDarkHeader {
-  background-color: #1a202c;
-  padding-bottom: 0.5em;
-}
-
-.displayDarkText {
-  color: white;
-}
-
-.displayLightHeader {
-  background-color: #e2e8f0;
-  padding-bottom: 0.5em;
-}
-
-.displayLightText {
-  color: black;
-}
-</style>
+<style></style>

@@ -12,9 +12,15 @@
     </head>
     <div>
       <b-navbar toggleable="lg" type="dark" variant="danger">
-        <b-navbar-brand href="/" style="font-family: 'Roboto', sans-serif;"
-          >YouTube Sync</b-navbar-brand
+        <b-navbar-brand
+          href="/"
+          style="font-family: 'Roboto', sans-serif; font-size: 20px;"
         >
+          <div class="flex items-center">
+            <img src="../public/logo.png" alt="" width="40" height="40" />
+            <p class="text-2xl ml-2">Rest</p>
+          </div>
+        </b-navbar-brand>
       </b-navbar>
     </div>
     <router-view />
@@ -73,5 +79,9 @@ body {
 .loading {
   width: 5em;
   margin: 0 auto;
+}
+
+body {
+  overflow: hidden;
 }
 </style>

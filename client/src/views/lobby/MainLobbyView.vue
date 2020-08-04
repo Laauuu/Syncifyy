@@ -1,5 +1,10 @@
 <template>
-  <div v-bind:class="{ displayDark: darkMode }" :style="{ height: 100 + '%' }">
+  <div
+    :style="{
+      'background-color': darkMode ? 'rgba(18, 18, 18)' : 'white',
+      height: windowHeight - 56 + 'px',
+    }"
+  >
     <div class="flex justify-center pt-3 mb-3">
       <button
         class="mr-3 text-red-600 focus:outline-none"
@@ -8,10 +13,14 @@
         <i class="fa fa-arrow-circle-left" style="font-size:26px;"></i>
       </button>
 
-      <p v-bind:class="{ titleDark: darkMode }" style="font-size: 2.25rem;">
+      <p
+        :style="{
+          'font-size': '2.25rem',
+          color: darkMode ? 'white' : 'black',
+        }"
+      >
         {{ lobbyTitle }}
       </p>
-
       <button
         v-if="!darkMode"
         @click="darkMode = true"
@@ -66,7 +75,10 @@
         <div @click="findCursorTime($event)" class="timeline" ref="timeline">
           <div
             class="timeline-cursor"
-            v-bind:style="{ width: videoPercentage + '%' }"
+            v-bind:style="{
+              width: videoPercentage + '%',
+              color: darkMode ? 'white' : 'black',
+            }"
           ></div>
         </div>
         <button
@@ -80,10 +92,19 @@
 
       <form @submit.prevent="switchVideo()" class="mt-2 text-center">
         <input
+          v-if="!darkMode"
           v-model="newVideoURL"
           type="text"
           style="width: 20%;"
           class="focus:outline-none border-b bg-transparent"
+          placeholder="Insert Youtube URL"
+        />
+        <input
+          v-if="darkMode"
+          v-model="newVideoURL"
+          type="text"
+          style="width: 20%;"
+          class="focus:outline-none border-b bg-transparent text-white"
           placeholder="Insert Youtube URL"
         />
         <input
@@ -95,11 +116,6 @@
       </form>
       <p class="text-red-600 text-center mt-2">{{ errorMessage }}</p>
     </div>
-
-    <div v-if="!fullScreen" ref="dashboard">
-      <LobbyDashboard :darkMode="darkMode" :dashboardHeight="dashboardHeight" />
-    </div>
-    <div :style="{ height: darkModeHeight + 'px' }" ref="leftover"></div>
   </div>
 </template>
 
@@ -131,9 +147,8 @@ export default {
       },
       videoLength: 0,
       videoPercentage: 0,
-      dashboardHeight: 0,
+      currentWatchers: 0,
       darkMode: false,
-      darkModeHeight: 0,
       errorMessage: '',
       socket: io('localhost:5001'), // listening on http://ec2-54-158-184-106.compute-1.amazonaws.com:5000
     };
@@ -193,14 +208,25 @@ export default {
     leaveLobby() {
       // push back to lobbies and send request to remove it from database
       const API_URL = process.env.VUE_APP_LEAVE_LOBBY;
+      const S_API_URL = 'http://127.0.0.1:5001/lobby/lost-connection';
+      const currRouteId = this.$router.currentRoute.path.split('/')[2];
+
       axios
         .put(API_URL, {}, { headers: { authorization: localStorage.token } })
         .then(() => {
+          this.darkMode = false;
           this.$router.push('/lobbies');
+          this.socket.emit('remove-user', this.currentLobbyId);
         })
         .catch((error) => {
           this.errorMessage = error.response.data;
         });
+
+      axios.put(
+        S_API_URL,
+        { lobbyId: currRouteId },
+        { headers: { authorization: localStorage.token } }
+      );
     },
     async inLobby(clientsLobbyId) {
       // display title of the current lobby
@@ -222,8 +248,8 @@ export default {
 
   created() {
     const API_URL = process.env.VUE_APP_ALL_LOBBIES;
-    const S_API_URL = process.env.VUE_APP_ASSIGN_LOBBY;
-    const T_API_URL = process.env.VUE_APP_CURRENTLY_WATCHING;
+    const S_API_URL = process.env.VUE_APP_CURRENTLY_WATCHING;
+    const T_API_URL = 'http://127.0.0.1:5001/lobby/users-connected';
 
     const currRouteId = this.$router.currentRoute.path.split('/')[2];
 
@@ -244,7 +270,7 @@ export default {
 
         axios
           .post(
-            T_API_URL,
+            S_API_URL,
             {
               lobbyId: this.currentLobbyId,
             },
@@ -259,17 +285,55 @@ export default {
           });
       });
 
-    axios.put(
-      S_API_URL,
-      { lobbyId: currRouteId },
-      { headers: { authorization: localStorage.token } }
-    );
-
-    this.frameHeight = screen.height - 400;
-    this.frameWidth = screen.width - 100;
+    axios
+      .put(
+        T_API_URL,
+        { lobbyId: currRouteId },
+        {
+          headers: {
+            authorization: localStorage.token,
+          },
+        }
+      )
+      .then((response) => {
+        if (response.data == 0) {
+          this.currentWatchers = 1;
+        } else {
+          this.currentWatchers = response.data;
+        }
+      });
   },
   mounted() {
-    this.dashboardHeight = this.$refs.dashboard.getBoundingClientRect().top;
+    this.frameHeight = screen.height - 400;
+    this.frameWidth = screen.width - 50;
+
+    const API_URL = 'http://127.0.0.1:5001/lobby/new-connection';
+
+    axios
+      .get(API_URL, {
+        headers: {
+          authorization: localStorage.token,
+        },
+      })
+      .then((response) => {
+        if (response.data.addConnection) {
+          const S_API_URL = process.env.VUE_APP_ASSIGN_LOBBY;
+          const T_API_URL = 'http://127.0.0.1:5001/lobby/add-connection';
+          const routeId = this.$router.currentRoute.path.split('/')[2];
+
+          axios.put(
+            S_API_URL,
+            { lobbyId: routeId },
+            { headers: { authorization: localStorage.token } }
+          );
+
+          axios.put(
+            T_API_URL,
+            { lobbyId: routeId },
+            { headers: { authorization: localStorage.token } }
+          );
+        }
+      });
 
     this.socket.on('play', async (clientsLobbyId) => {
       let isValidRequest = await this.inLobby(clientsLobbyId);
@@ -311,9 +375,6 @@ export default {
         this.player.pauseVideo(); // pause
       }
     });
-
-    this.darkModeHeight =
-      this.$refs.leftover.getBoundingClientRect().top / 2 - 56;
   },
 };
 </script>
@@ -323,17 +384,23 @@ export default {
   height: 10px;
   width: 40%;
   margin-left: 10px;
-  background-color: rgb(240, 240, 240);
+  background-color: rgb(145, 145, 145);
   cursor: pointer;
 }
 
 .timeline-cursor {
   background-color: red;
   height: 10px;
-  border-right: 2px solid;
+  border-right: 3px solid;
 }
 
-.displayDark {
+.timeline-cursor-dark {
+  background-color: red;
+  height: 10px;
+  border-right: 3px solid white;
+}
+
+.darkModeDisplay {
   background-color: rgb(15, 15, 15);
 }
 

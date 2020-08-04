@@ -47,7 +47,7 @@
           type="checkbox"
           v-model="currentLobbyPrivate"
           style="margin-top: 10px;"
-        /><!-- fix this bug eventually lol -->
+        />
         private?<br />
         <input
           :type="showing"
@@ -83,6 +83,7 @@
           Cancel
         </button>
       </form>
+
       <p style="color: red; margin-top: 10px;">
         {{ errorMessage }}
       </p>
