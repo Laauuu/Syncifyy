@@ -32,4 +32,4 @@ Because of coronavirus, it has been harder to keep in touch with peers, and I wa
 
 ## Demo -
 
-http://youtube-sync-project.s3-website-us-east-1.amazonaws.com/
+http://www.syncifyy.com/
