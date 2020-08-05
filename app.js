@@ -2,7 +2,7 @@
 const express = require('express');
 const app = express();
 
-const port = process.env.PORT || 5001; // CHANGE BACK TO 5000
+const port = process.env.PORT || 5001;
 
 // cors & volleyball package
 const volleyball = require('volleyball');

@@ -10,7 +10,7 @@
         class="mr-3 text-red-600 focus:outline-none"
         @click="leaveLobby()"
       >
-        <i class="fa fa-arrow-circle-left" style="font-size:26px;"></i>
+        <i class="fa fa-arrow-circle-left" style="font-size:34px;"></i>
       </button>
 
       <p
@@ -26,14 +26,14 @@
         @click="darkMode = true"
         class="ml-3 text-black focus:outline-none"
       >
-        <i class="fa fa-moon-o" style="font-size:26px;"></i>
+        <i class="fa fa-moon-o" style="font-size:32px;"></i>
       </button>
       <button
         v-if="darkMode"
         @click="darkMode = false"
         class="ml-3 text-yellow-500 focus:outline-none"
       >
-        <i class="fa fa-sun-o" style="font-size:26px;"></i>
+        <i class="fa fa-sun-o" style="font-size:32px;"></i>
       </button>
     </div>
     <div>
@@ -57,7 +57,16 @@
           style="pointer-events: none;"
         ></youtube>
       </div>
+
       <div class="flex items-center justify-center mt-4">
+        <p
+          class="text-lg mr-2"
+          :style="{ color: darkMode ? 'white' : 'black' }"
+        >
+          {{ minutes }}:{{ seconds }}
+          /
+          {{ totalMinutes }}:{{ totalSeconds }}
+        </p>
         <button
           @click="playVideo"
           class="p-1 pl-2 pr-2 border-black rounded bg-red-600 focus:outline-none hover:bg-red-500 text-white"
@@ -115,6 +124,14 @@
         />
       </form>
       <p class="text-red-600 text-center mt-2">{{ errorMessage }}</p>
+      <!--<div
+        class="w-full mt-5"
+        :style="{
+          'border-top': darkMode ? '3px solid white' : '3px solid black',
+        }"
+      >
+        <LobbyDashboard :darkMode="darkMode" :currentLobbyId="currentLobbyId" />
+      </div>-->
     </div>
   </div>
 </template>
@@ -146,11 +163,16 @@ export default {
         modestbranding: 1,
       },
       videoLength: 0,
+      currentTime: '0:00',
       videoPercentage: 0,
-      currentWatchers: 0,
+      minutes: 0,
+      seconds: '00',
+      totalMinutes: 0,
+      totalSeconds: '00',
       darkMode: false,
+      watchCount: 5,
       errorMessage: '',
-      socket: io('localhost:5001'), // listening on http://ec2-54-158-184-106.compute-1.amazonaws.com:5000
+      socket: io('http://ec2-54-158-184-106.compute-1.amazonaws.com:5000'),
     };
   },
   computed: {
@@ -181,7 +203,7 @@ export default {
       } else {
         this.errorMessage = '';
         try {
-          const API_URL = 'http://127.0.0.1:5001/lobby/change-video';
+          const API_URL = process.env.VUE_APP_CHANGE_VIDEO;
           await axios.put(
             API_URL,
             { lobbyId: this.currentLobbyId, newVideoId: newVideo },
@@ -208,7 +230,6 @@ export default {
     leaveLobby() {
       // push back to lobbies and send request to remove it from database
       const API_URL = process.env.VUE_APP_LEAVE_LOBBY;
-      const S_API_URL = 'http://127.0.0.1:5001/lobby/lost-connection';
       const currRouteId = this.$router.currentRoute.path.split('/')[2];
 
       axios
@@ -221,12 +242,6 @@ export default {
         .catch((error) => {
           this.errorMessage = error.response.data;
         });
-
-      axios.put(
-        S_API_URL,
-        { lobbyId: currRouteId },
-        { headers: { authorization: localStorage.token } }
-      );
     },
     async inLobby(clientsLobbyId) {
       // display title of the current lobby
@@ -249,7 +264,6 @@ export default {
   created() {
     const API_URL = process.env.VUE_APP_ALL_LOBBIES;
     const S_API_URL = process.env.VUE_APP_CURRENTLY_WATCHING;
-    const T_API_URL = 'http://127.0.0.1:5001/lobby/users-connected';
 
     const currRouteId = this.$router.currentRoute.path.split('/')[2];
 
@@ -284,30 +298,12 @@ export default {
             this.videoId = videoId.data;
           });
       });
-
-    axios
-      .put(
-        T_API_URL,
-        { lobbyId: currRouteId },
-        {
-          headers: {
-            authorization: localStorage.token,
-          },
-        }
-      )
-      .then((response) => {
-        if (response.data == 0) {
-          this.currentWatchers = 1;
-        } else {
-          this.currentWatchers = response.data;
-        }
-      });
   },
   mounted() {
     this.frameHeight = screen.height - 400;
     this.frameWidth = screen.width - 50;
 
-    const API_URL = 'http://127.0.0.1:5001/lobby/new-connection';
+    const API_URL = process.env.VUE_APP_NEW_VIDEO;
 
     axios
       .get(API_URL, {
@@ -318,17 +314,10 @@ export default {
       .then((response) => {
         if (response.data.addConnection) {
           const S_API_URL = process.env.VUE_APP_ASSIGN_LOBBY;
-          const T_API_URL = 'http://127.0.0.1:5001/lobby/add-connection';
           const routeId = this.$router.currentRoute.path.split('/')[2];
 
           axios.put(
             S_API_URL,
-            { lobbyId: routeId },
-            { headers: { authorization: localStorage.token } }
-          );
-
-          axios.put(
-            T_API_URL,
             { lobbyId: routeId },
             { headers: { authorization: localStorage.token } }
           );
@@ -342,6 +331,32 @@ export default {
         this.interval = setInterval(async () => {
           this.videoLength = await this.player.getDuration();
           let currentTimestamp = await this.player.getCurrentTime();
+
+          let seconds = currentTimestamp % 60;
+          let minutes = (currentTimestamp - seconds) / 60;
+
+          if (seconds.toFixed(0) < 10) {
+            this.seconds = '0' + seconds.toFixed(0).slice(-2);
+          } else {
+            this.seconds = seconds.toFixed(0);
+          }
+
+          if (seconds.toFixed(0) == 60) {
+            this.minutes = minutes + 1;
+            this.seconds = '00';
+          }
+
+          let totalSeconds = this.videoLength % 60;
+          let totalMinutes = (this.videoLength - totalSeconds) / 60;
+
+          if (totalSeconds.toFixed(0) < 10) {
+            this.totalSeconds = '0' + totalSeconds.toFixed(0).slice(-2);
+          } else {
+            this.totalSeconds = totalSeconds.toFixed(0);
+          }
+
+          this.totalMinutes = totalMinutes;
+
           let percentage = (currentTimestamp / this.videoLength) * 100;
           this.videoPercentage = percentage;
         }, 10);

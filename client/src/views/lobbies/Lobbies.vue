@@ -109,8 +109,8 @@
       </p>
       <p class="mb-3">and stay up-to-date!</p>
 
-      <a href="https://discord.gg/tBFcVsx" target="_blank"
-        >https://discord.gg/tBFcVsx</a
+      <a href="https://discord.gg/v4tHeaY" target="_blank"
+        >https://discord.gg/v4tHeaY</a
       >
       🎉<br />
       <div class="mt-2">
@@ -149,7 +149,7 @@ export default {
   },
   created() {
     const API_URL = process.env.VUE_APP_USER_LOBBY;
-    const S_API_URL = 'http://127.0.0.1:5001/lobbies/user';
+    const S_API_URL = process.env.VUE_APP_USERNAME;
     this.loading = true;
 
     axios

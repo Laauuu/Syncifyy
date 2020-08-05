@@ -1,45 +1,32 @@
 <template>
   <div>
     <div
-      class="text-center"
+      class="w-full pb-1"
       :style="{
-        color: darkMode ? 'white' : 'black',
+        'border-bottom': darkMode ? '3px solid white' : '3px solid black',
+        'background-color': darkMode ? '#1a202c' : 'white',
       }"
     >
-      <p class="text-4xl pt-4">Lobby Settings</p>
-      <div v-if="!permissionToEdit" class="text-2xl mb-4 mt-4">
-        You do not have permission to edit this lobby!
-      </div>
-      <div v-if="permissionToEdit" class="text-2xl mb-4 mt-4">
+      <div class="flex">
         <button
-          class="bg-green-600 p-1 text-white focus:outline-none rounded hover:bg-green-500"
-          style="border: 1.5px solid gray;"
+          class="p-1 bg-green-600 text-white rounded-b hover:bg-green-500 focus:outline-none"
         >
-          Change Lobby Name</button
-        ><br />
+          Watching: 0
+        </button>
         <button
-          class="mt-3 bg-green-600 p-1 text-white focus:outline-none rounded hover:bg-green-500"
-          style="border: 1.5px solid gray;"
+          class="p-1 bg-blue-600 text-white rounded-b ml-2 focus:outline-none hover:bg-blue-500"
         >
-          Change Lobby Status</button
-        ><br />
+          Lobby Chat
+        </button>
         <button
-          class="mt-3 bg-blue-600 p-1 text-white focus:outline-none rounded hover:bg-blue-500"
-          style="border: 1.5px solid gray;"
+          class="p-1 bg-blue-600 text-white rounded-b ml-2 focus:outline-none hover:bg-blue-500"
         >
-          Kick User</button
-        ><br />
+          Private Chat (Coming Soon!)
+        </button>
         <button
-          class="mt-3 bg-blue-600 p-1 text-white focus:outline-none rounded hover:bg-blue-500"
-          style="border: 1.5px solid gray;"
+          class="p-1 bg-blue-600 text-white rounded-b ml-2 focus:outline-none hover:bg-blue-500"
         >
-          Ban User (coming soon!)</button
-        ><br />
-        <button
-          class="mt-5 bg-red-700 text-white p-1 rounded focus:outline-none hover:bg-red-600"
-          style="border: 1.5px solid gray;"
-        >
-          Remove Lobby
+          Voice Chat (Coming Soon!)
         </button>
       </div>
     </div>
@@ -47,18 +34,11 @@
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
   name: 'LobbyDashboard',
   props: {
     darkMode: Boolean,
     currentLobbyId: String,
-  },
-  data() {
-    return {
-      permissionToEdit: false,
-    };
   },
 };
 </script>
