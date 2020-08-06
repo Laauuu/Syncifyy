@@ -20,7 +20,8 @@ Because of coronavirus, it has been harder to keep in touch with peers, and I wa
 ## Tech / Frameworks - 
 
 ### Built with - 
-- MongoDB
+- mySQL
+- Sequelize (ORM)
 - Node / Express
 - Socket.io
 - JWT's
