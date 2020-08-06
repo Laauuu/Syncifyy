@@ -29,6 +29,7 @@ Because of coronavirus, it has been harder to keep in touch with peers, and I wa
 
 ### Deployment - 
 
+- Deployed database on a RDS instance (AWS)
 - Deployed backend on an ubuntu 18.04 EC2 instance (AWS)
 - Deployed frontend on a s3 bucket (AWS)
 
