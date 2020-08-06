@@ -23,6 +23,7 @@ Because of coronavirus, it has been harder to keep in touch with peers, and I wa
 - MongoDB
 - Node / Express
 - Socket.io
+- JWT's
 - Vue / Vuex
 
 ### Deployment - 
