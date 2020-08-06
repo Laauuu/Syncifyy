@@ -1,4 +1,4 @@
-# Youtube-Sync
+# Syncifyy
 
 ## Project Summary - 
 This web app enables you to create an account and start a new lobby. Here other users can join in and watch synchronized youtube videos realtime! Demo - https://github.com/BigBellyBigDreams/Youtube-Sync#demo--
